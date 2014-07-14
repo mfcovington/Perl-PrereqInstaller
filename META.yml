@@ -15,12 +15,13 @@ name: Module-Extract-Install
 provides:
   Module::Extract::Install:
     file: lib/Module/Extract/Install.pm
-    version: v0.3.0
+    version: v0.3.2
 recommends:
   Pod::Markdown: '0'
 requires:
+  App::cpanminus: '0'
   Carp: '0'
   Module::Extract::Use: '0'
 resources:
   license: http://dev.perl.org/licenses/
-version: v0.3.0
+version: v0.3.2

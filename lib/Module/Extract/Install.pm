@@ -4,7 +4,7 @@ use warnings;
 use Carp;
 use Module::Extract::Use;
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.3.2';
 
 =head1 NAME
 
