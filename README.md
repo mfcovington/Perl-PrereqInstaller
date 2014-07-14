@@ -29,13 +29,18 @@ will not be installed.
 
 - new
 
-    Makes an object. The object doesn't do anything just yet, but you need
-    it to call the methods.
+    Initializes a new Module::Extract::Install object.
 
 - check\_modules( FILE )
 
     Analyzes FILE to generate a list of modules explicitly loaded in FILE
-    and identifies which are not currently installed.
+    and identifies which are not currently installed. Subsequent calls of
+    this method will continue adding to the lists of modules that are not
+    installed (or already installed).
+
+- cpanm
+
+    Use cpanm to install loaded modules that are not currently installed.
 
 - not\_installed
 
@@ -59,10 +64,6 @@ will not be installed.
     Returns an alphabetical list of unique modules that were
     explicitly loaded and needed to be installed, but whose installation
     failed.
-
-- cpanm
-
-    Use cpanm to install loaded modules that are not currently installed.
 
 # SEE ALSO
 

@@ -41,8 +41,7 @@ will not be installed.
 
 =item new
 
-Makes an object. The object doesn't do anything just yet, but you need
-it to call the methods.
+Initializes a new Module::Extract::Install object.
 
 =cut
 
@@ -63,7 +62,9 @@ sub new {
 =item check_modules( FILE )
 
 Analyzes FILE to generate a list of modules explicitly loaded in FILE
-and identifies which are not currently installed.
+and identifies which are not currently installed. Subsequent calls of
+this method will continue adding to the lists of modules that are not
+installed (or already installed).
 
 =cut
 
@@ -90,6 +91,29 @@ sub check_modules {
         }
         else {
             $self->{_previously_installed}{$module}++;
+        }
+    }
+}
+
+=item cpanm
+
+Use cpanm to install loaded modules that are not currently installed.
+
+=cut
+
+sub cpanm {
+    my $self = shift;
+
+    my @modules = sort keys %{ $self->{_not_installed} };
+    for (@modules) {
+        my $exit_status = system("cpanm $_");
+        if ($exit_status) {
+            $self->{_failed_install}{$_}++;
+        }
+        else {
+            delete $self->{_not_installed}{$_};
+            delete $self->{_failed_install}{$_};
+            $self->{_newly_installed}{$_}++;
         }
     }
 }
@@ -143,29 +167,6 @@ failed.
 sub failed_install {
     my $self = shift;
     return sort keys %{ $self->{_failed_install} };
-}
-
-=item cpanm
-
-Use cpanm to install loaded modules that are not currently installed.
-
-=cut
-
-sub cpanm {
-    my $self = shift;
-
-    my @modules = sort keys %{ $self->{_not_installed} };
-    for (@modules) {
-        my $exit_status = system("cpanm $_");
-        if ($exit_status) {
-            $self->{_failed_install}{$_}++;
-        }
-        else {
-            delete $self->{_not_installed}{$_};
-            delete $self->{_failed_install}{$_};
-            $self->{_newly_installed}{$_}++;
-        }
-    }
 }
 
 =back
