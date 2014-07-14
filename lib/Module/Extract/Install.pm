@@ -18,10 +18,13 @@ loaded by a Perl script or module
     my $installer = Module::Extract::Install->new;
     $installer->check_modules($file);
 
-    my @uninstalled = $installer->get_uninstalled_modules;
-    my @installed   = $installer->get_installed_modules;
+    my @uninstalled = $installer->not_installed;
+    my @installed   = $installer->previously_installed;
 
     $installer->cpanm;
+
+    my @newly_installed = $installer->newly_installed;
+    my @failed_install  = $installer->failed_install;
 
 =head1 DESCRIPTION
 
@@ -47,8 +50,10 @@ sub new {
     my $class = shift;
 
     my $self = {
-        _uninstalled => {},
-        _installed   => {},
+        _not_installed        => {},
+        _previously_installed => {},
+        _newly_installed      => {},
+        _failed_install       => {},
     };
     bless $self, $class;
 
@@ -66,7 +71,7 @@ sub check_modules {
     my ( $self, $file ) = @_;
 
     my $extractor = Module::Extract::Use->new;
-    my $details = $extractor->get_modules_with_details($file);
+    my $details   = $extractor->get_modules_with_details($file);
 
     # Temporary method for error handling:
     if ( $extractor->error ) {
@@ -81,36 +86,63 @@ sub check_modules {
 
         eval "use $import_call;";
         if ($@) {
-            $self->{_uninstalled}{$module}++;
+            $self->{_not_installed}{$module}++;
         }
         else {
-            $self->{_installed}{$module}++;
+            $self->{_previously_installed}{$module}++;
         }
     }
 }
 
-=item get_uninstalled_modules
+=item not_installed
 
-Returns an alphabetical list of unique uninstalled modules that were
-explicitly loaded.
+Returns an alphabetical list of unique modules that were explicitly
+loaded, but need to be installed. Modules are removed from this list
+upon installation.
 
 =cut
 
-sub get_uninstalled_modules {
+sub not_installed {
     my $self = shift;
-    return sort keys %{ $self->{_uninstalled} };
+    return sort keys %{ $self->{_not_installed} };
 }
 
-=item get_installed_modules
+=item previously_installed
 
 Returns an alphabetical list of unique installed modules that were
 explicitly loaded.
 
 =cut
 
-sub get_installed_modules {
+sub previously_installed {
     my $self = shift;
-    return sort keys %{ $self->{_installed} };
+    return sort keys %{ $self->{_previously_installed} };
+}
+
+=item newly_installed
+
+Returns an alphabetical list of unique modules that were
+explicitly loaded, needed to be installed, and were successfully
+installed.
+
+=cut
+
+sub newly_installed {
+    my $self = shift;
+    return sort keys %{ $self->{_newly_installed} };
+}
+
+=item failed_install
+
+Returns an alphabetical list of unique modules that were
+explicitly loaded and needed to be installed, but whose installation
+failed.
+
+=cut
+
+sub failed_install {
+    my $self = shift;
+    return sort keys %{ $self->{_failed_install} };
 }
 
 =item cpanm
@@ -121,8 +153,19 @@ Use cpanm to install loaded modules that are not currently installed.
 
 sub cpanm {
     my $self = shift;
-    my @modules = sort keys %{ $self->{_uninstalled} };
-    system("cpanm $_") for @modules;
+
+    my @modules = sort keys %{ $self->{_not_installed} };
+    for (@modules) {
+        my $exit_status = system("cpanm $_");
+        if ($exit_status) {
+            $self->{_failed_install}{$_}++;
+        }
+        else {
+            delete $self->{_not_installed}{$_};
+            delete $self->{_failed_install}{$_};
+            $self->{_newly_installed}{$_}++;
+        }
+    }
 }
 
 =back

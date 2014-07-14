@@ -9,10 +9,11 @@ my $file = $ARGV[0];
 my $installer = Module::Extract::Install->new;
 $installer->check_modules($file);
 
-my @uninstalled = $installer->get_uninstalled_modules;
-my @installed = $installer->get_installed_modules;
-
-print "UNINSTALLED: $_\n" for @uninstalled;
-print "INSTALLED: $_\n" for @installed;
+print "NOT INSTALLED: $_\n" for $installer->not_installed;
+print "INSTALLED: $_\n"     for $installer->previously_installed;
 
 $installer->cpanm;
+
+print "NEWLY INSTALLED: $_\n" for $installer->newly_installed;
+print "UNINSTALLED: $_\n"     for $installer->not_installed;
+print "FAILED: $_\n"          for $installer->failed_install;

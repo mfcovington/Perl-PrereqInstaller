@@ -10,10 +10,13 @@ loaded by a Perl script or module
     my $installer = Module::Extract::Install->new;
     $installer->check_modules($file);
 
-    my @uninstalled = $installer->get_uninstalled_modules;
-    my @installed   = $installer->get_installed_modules;
+    my @uninstalled = $installer->not_installed;
+    my @installed   = $installer->previously_installed;
 
     $installer->cpanm;
+
+    my @newly_installed = $installer->newly_installed;
+    my @failed_install  = $installer->failed_install;
 
 # DESCRIPTION
 
@@ -34,15 +37,28 @@ will not be installed.
     Analyzes FILE to generate a list of modules explicitly loaded in FILE
     and identifies which are not currently installed.
 
-- get\_uninstalled\_modules
+- not\_installed
 
-    Returns an alphabetical list of unique uninstalled modules that were
-    explicitly loaded.
+    Returns an alphabetical list of unique modules that were explicitly
+    loaded, but need to be installed. Modules are removed from this list
+    upon installation.
 
-- get\_installed\_modules
+- previously\_installed
 
     Returns an alphabetical list of unique installed modules that were
     explicitly loaded.
+
+- newly\_installed
+
+    Returns an alphabetical list of unique modules that were
+    explicitly loaded, needed to be installed, and were successfully
+    installed.
+
+- failed\_install
+
+    Returns an alphabetical list of unique modules that were
+    explicitly loaded and needed to be installed, but whose installation
+    failed.
 
 - cpanm
 
