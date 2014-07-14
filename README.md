@@ -8,7 +8,7 @@ loaded by a Perl script or module
     use Module::Extract::Install;
 
     my $installer = Module::Extract::Install->new;
-    $installer->check_modules($file);
+    $installer->check_modules(@files);
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
@@ -31,12 +31,12 @@ will not be installed.
 
     Initializes a new Module::Extract::Install object.
 
-- check\_modules( FILE )
+- check\_modules( FILES )
 
-    Analyzes FILE to generate a list of modules explicitly loaded in FILE
-    and identifies which are not currently installed. Subsequent calls of
-    this method will continue adding to the lists of modules that are not
-    installed (or already installed).
+    Analyzes FILES to generate a list of modules explicitly loaded in
+    FILES and identifies which are not currently installed. Subsequent
+    calls of this method will continue adding to the lists of modules
+    that are not installed (or already installed).
 
 - cpanm
 

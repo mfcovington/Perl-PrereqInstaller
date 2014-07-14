@@ -4,10 +4,10 @@ use warnings;
 use lib 'lib';
 use Module::Extract::Install;
 
-my $file = $ARGV[0];
+my @files = @ARGV;
 
 my $installer = Module::Extract::Install->new;
-$installer->check_modules($file);
+$installer->check_modules(@files);
 
 print "NOT INSTALLED: $_\n" for $installer->not_installed;
 print "INSTALLED: $_\n"     for $installer->previously_installed;

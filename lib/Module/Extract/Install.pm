@@ -16,7 +16,7 @@ loaded by a Perl script or module
     use Module::Extract::Install;
 
     my $installer = Module::Extract::Install->new;
-    $installer->check_modules($file);
+    $installer->check_modules(@files);
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
@@ -59,38 +59,42 @@ sub new {
     return $self;
 }
 
-=item check_modules( FILE )
+=item check_modules( FILES )
 
-Analyzes FILE to generate a list of modules explicitly loaded in FILE
-and identifies which are not currently installed. Subsequent calls of
-this method will continue adding to the lists of modules that are not
-installed (or already installed).
+Analyzes FILES to generate a list of modules explicitly loaded in
+FILES and identifies which are not currently installed. Subsequent
+calls of this method will continue adding to the lists of modules
+that are not installed (or already installed).
 
 =cut
 
 sub check_modules {
-    my ( $self, $file ) = @_;
+    my ( $self, @file_list ) = @_;
 
     my $extractor = Module::Extract::Use->new;
-    my $details   = $extractor->get_modules_with_details($file);
 
-    # Temporary method for error handling:
-    if ( $extractor->error ) {
-        carp "Problem extracting modules used in $file";
-    }
+    for my $file (@file_list) {
+        my $details = $extractor->get_modules_with_details($file);
 
-    for my $detail (@$details) {
-        my $module  = $detail->module;
-        my @imports = @{ $detail->imports };
-
-        my $import_call = scalar @imports ? "$module qw(@imports)" : $module;
-
-        eval "use $import_call;";
-        if ($@) {
-            $self->{_not_installed}{$module}++;
+        # Temporary method for error handling:
+        if ( $extractor->error ) {
+            carp "Problem extracting modules used in $file";
         }
-        else {
-            $self->{_previously_installed}{$module}++;
+
+        for my $detail (@$details) {
+            my $module  = $detail->module;
+            my @imports = @{ $detail->imports };
+
+            my $import_call
+                = scalar @imports ? "$module qw(@imports)" : $module;
+
+            eval "use $import_call;";
+            if ($@) {
+                $self->{_not_installed}{$module}++;
+            }
+            else {
+                $self->{_previously_installed}{$module}++;
+            }
         }
     }
 }
