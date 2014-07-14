@@ -5,6 +5,10 @@ loaded by a Perl script or module
 
 # SYNOPSIS
 
+Via command line:
+
+    cpanm-missing file.pl
+
 Via a script:
 
     use Module::Extract::Install;
@@ -19,10 +23,6 @@ Via a script:
 
     my @newly_installed = $installer->newly_installed;
     my @failed_install  = $installer->failed_install;
-
-Via command line:
-
-    cpanm-missing file.pl
 
 # DESCRIPTION
 

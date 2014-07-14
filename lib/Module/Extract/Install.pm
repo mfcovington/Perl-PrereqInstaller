@@ -4,7 +4,7 @@ use warnings;
 use Carp;
 use Module::Extract::Use;
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.3.1';
 
 =head1 NAME
 
@@ -12,6 +12,10 @@ Module::Extract::Install - Install missing modules explicitly
 loaded by a Perl script or module
 
 =head1 SYNOPSIS
+
+Via command line:
+
+    cpanm-missing file.pl
 
 Via a script:
 
@@ -27,10 +31,6 @@ Via a script:
 
     my @newly_installed = $installer->newly_installed;
     my @failed_install  = $installer->failed_install;
-
-Via command line:
-
-    cpanm-missing file.pl
 
 =head1 DESCRIPTION
 
