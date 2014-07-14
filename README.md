@@ -8,12 +8,15 @@ loaded by a Perl script or module
     use Module::Extract::Install;
 
     my $installer = Module::Extract::Install->new;
-    $installer->check_modules($file);
+    $installer->check_modules(@files);
 
-    my @uninstalled = $installer->get_uninstalled_modules;
-    my @installed   = $installer->get_installed_modules;
+    my @uninstalled = $installer->not_installed;
+    my @installed   = $installer->previously_installed;
 
     $installer->cpanm;
+
+    my @newly_installed = $installer->newly_installed;
+    my @failed_install  = $installer->failed_install;
 
 # DESCRIPTION
 
@@ -26,27 +29,41 @@ will not be installed.
 
 - new
 
-    Makes an object. The object doesn't do anything just yet, but you need
-    it to call the methods.
+    Initializes a new Module::Extract::Install object.
 
-- check\_modules( FILE )
+- check\_modules( FILES )
 
-    Analyzes FILE to generate a list of modules explicitly loaded in FILE
-    and identifies which are not currently installed.
-
-- get\_uninstalled\_modules
-
-    Returns an alphabetical list of unique uninstalled modules that were
-    explicitly loaded.
-
-- get\_installed\_modules
-
-    Returns an alphabetical list of unique installed modules that were
-    explicitly loaded.
+    Analyzes FILES to generate a list of modules explicitly loaded in
+    FILES and identifies which are not currently installed. Subsequent
+    calls of this method will continue adding to the lists of modules
+    that are not installed (or already installed).
 
 - cpanm
 
     Use cpanm to install loaded modules that are not currently installed.
+
+- not\_installed
+
+    Returns an alphabetical list of unique modules that were explicitly
+    loaded, but need to be installed. Modules are removed from this list
+    upon installation.
+
+- previously\_installed
+
+    Returns an alphabetical list of unique installed modules that were
+    explicitly loaded.
+
+- newly\_installed
+
+    Returns an alphabetical list of unique modules that were
+    explicitly loaded, needed to be installed, and were successfully
+    installed.
+
+- failed\_install
+
+    Returns an alphabetical list of unique modules that were
+    explicitly loaded and needed to be installed, but whose installation
+    failed.
 
 # SEE ALSO
 
