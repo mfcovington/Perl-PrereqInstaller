@@ -4,14 +4,16 @@ use warnings;
 use Carp;
 use Module::Extract::Use;
 
-our $VERSION = '0.2.0';
+our $VERSION = '0.3.0';
 
 =head1 NAME
 
-Module::Extract::Install - Install uninstalled modules explicitly
+Module::Extract::Install - Install missing modules explicitly
 loaded by a Perl script or module
 
 =head1 SYNOPSIS
+
+Via a script:
 
     use Module::Extract::Install;
 
@@ -26,6 +28,10 @@ loaded by a Perl script or module
     my @newly_installed = $installer->newly_installed;
     my @failed_install  = $installer->failed_install;
 
+Via command line:
+
+    cpanm-missing file.pl
+
 =head1 DESCRIPTION
 
 Extract the names of the modules explicitly loaded in a Perl script or
@@ -34,6 +40,9 @@ module relies on L<Module::Extract::Use|Module::Extract::Use>, it has
 the same caveats regarding identifying loaded modules. Therefore,
 modules that are loaded dynamically (e.g., C<eval "require $class">)
 will not be installed.
+
+Command-line usage is possible with C<cpanm-missing>, a script that
+is installed along with this module.
 
 =cut
 

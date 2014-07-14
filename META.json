@@ -1,0 +1,45 @@
+{
+   "abstract" : "Install missing modules explicitly",
+   "author" : [
+      "Michael F. Covington <mfcovington@gmail.com>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4206",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Module-Extract-Install",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "recommends" : {
+            "Pod::Markdown" : "0"
+         },
+         "requires" : {
+            "Carp" : "0",
+            "Module::Extract::Use" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "Module::Extract::Install" : {
+         "file" : "lib/Module/Extract/Install.pm",
+         "version" : "v0.3.0"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "v0.3.0"
+}

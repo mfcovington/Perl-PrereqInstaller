@@ -1,0 +1,30 @@
+#! perl
+use strict;
+use warnings;
+use lib 'lib';
+use Module::Extract::Install;
+
+my @files = @ARGV;
+
+die "cpanm-missing requires at least one argument (a Perl script/module)\n"
+    if scalar @files == 0;
+
+my $installer = Module::Extract::Install->new;
+$installer->check_modules(@files);
+
+my @missing = $installer->not_installed;
+
+if ( scalar @missing > 0 ) {
+    $installer->cpanm;
+
+    print "Successfully installed:\n";
+    print "  $_\n" for $installer->newly_installed;
+
+    print "Failed to install:\n";
+    print "  $_\n" for $installer->failed_install;
+}
+else {
+    print "No missing modules need to be installed!\n";
+}
+
+exit;
