@@ -1,5 +1,9 @@
 Revision history for Perl module Module::Extract::Install
 
+0.3.1 2014-07-14
+
+  - Reformat cpanm-missing output
+
 0.3.0 2014-07-14
 
   - Install missing modules via command line with 'cpanm-missing'
