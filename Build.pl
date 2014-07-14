@@ -22,6 +22,7 @@ my $builder = Module::Build->new(
     license            => 'perl',
     create_makefile_pl => 0,
     requires => {
+        "App::cpanminus"       => 0,
         "Carp"                 => 0,
         "Module::Extract::Use" => 0,
     },
