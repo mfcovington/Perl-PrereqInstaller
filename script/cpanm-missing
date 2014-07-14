@@ -1,7 +1,6 @@
 #! perl
 use strict;
 use warnings;
-use lib 'lib';
 use Module::Extract::Install;
 
 my @files = @ARGV;
@@ -15,13 +14,21 @@ $installer->check_modules(@files);
 my @missing = $installer->not_installed;
 
 if ( scalar @missing > 0 ) {
+    print "\n";
+    print "Modules to install:\n";
+    print "  $_\n" for @missing;
+    print "\n";
+
     $installer->cpanm;
+    print "\n";
 
     print "Successfully installed:\n";
     print "  $_\n" for $installer->newly_installed;
+    print "\n";
 
     print "Failed to install:\n";
     print "  $_\n" for $installer->failed_install;
+    print "\n";
 }
 else {
     print "No missing modules need to be installed!\n";
