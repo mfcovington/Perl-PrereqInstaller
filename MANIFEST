@@ -1,0 +1,9 @@
+Build.pl
+CHANGES
+MANIFEST
+README.md
+demo.pl
+lib/Module/Extract/Install.pm
+META.yml
+META.json
+script/cpanm-missing
