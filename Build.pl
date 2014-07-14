@@ -7,7 +7,7 @@ use Module::Build;
 # TODO: Add perl + version to requirements
 
 my $module_file = "lib/Module/Extract/Install.pm";
-my @scripts = grep { -f and !-d } glob 'script/*';
+my @scripts = grep { -f and !-d } glob 'bin/*';
 
 eval "use Pod::Markdown";
 if ( ! $@ ) {
