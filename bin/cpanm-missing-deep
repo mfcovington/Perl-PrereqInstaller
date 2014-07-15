@@ -1,12 +1,34 @@
 #! perl
 use strict;
 use warnings;
+use File::Basename;
 use Module::Extract::Install;
+use Getopt::Long;
+
+my ( $help, $version );
+
+my $options = GetOptions(
+    "help"    => \$help,
+    "version" => \$version,
+);
 
 my ( $dir, $pattern ) = @ARGV;
 
-die "cpanm-missing-deep requires at least one argument (a directory)\n"
-    unless defined $dir;
+my $script_path = $0;
+my $script_name = fileparse $script_path;
+
+if ( defined $version ) {
+    die "$script_name v$Module::Extract::Install::VERSION\n";
+}
+
+my $usage = <<EOF;
+usage: $script_name DIRECTORY [REGEX-PATTERN]
+    -h, --help
+    -v, --version
+EOF
+
+die $usage if defined $help;
+die $usage unless defined $dir;
 
 my $installer = Module::Extract::Install->new;
 $installer->check_modules_deep( $dir, $pattern );
