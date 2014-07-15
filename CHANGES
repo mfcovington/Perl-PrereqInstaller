@@ -1,5 +1,11 @@
 Revision history for Perl module Module::Extract::Install
 
+0.4.0 2014-07-14
+
+  - Traverse directory to install missing modules with check_modules_deep()
+  - Traverse directory to install missing modules via CLI with 'cpanm-missing-deep'
+  - Add help & version options for cpanm-missing(-deep)
+
 0.3.2 2014-07-14
 
   - Add App::cpanminus as a dependency
