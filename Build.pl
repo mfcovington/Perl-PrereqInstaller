@@ -24,6 +24,7 @@ my $builder = Module::Build->new(
     requires => {
         "App::cpanminus"       => 0,
         "Carp"                 => 0,
+        "File::Find"           => 0,
         "Module::Extract::Use" => 0,
     },
     # build_requires => {

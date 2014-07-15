@@ -2,6 +2,7 @@ package Module::Extract::Install;
 use strict;
 use warnings;
 use Carp;
+use File::Find;
 use Module::Extract::Use;
 
 our $VERSION = '0.3.2';
@@ -106,6 +107,34 @@ sub check_modules {
             }
         }
     }
+}
+
+=item check_modules_deep( DIRECTORY, PATTERN )
+
+Traverses a DIRECTORY and runs C<check_modules()> on files that match
+PATTERN, a case-insensitive regular expression. If omitted, PATTERN
+defaults to C<^.+\.p[lm]$> and matches files ending in C<.pl> or
+C<.pm>. Subsequent calls of this method will continue adding to the
+lists of modules that are not installed (or already installed).
+
+=cut
+
+sub check_modules_deep {
+    my ( $self, $directory, $pattern ) = @_;
+
+    $pattern = defined $pattern ? qr/$pattern/i : qr/^.+\.p[lm]$/i;
+
+    print "\n";
+    print "Files found:\n";
+    find(
+        sub {
+            return unless /$pattern/;
+            print "  $File::Find::dir/$_\n";
+            $self->check_modules($_);
+        },
+        $directory
+    );
+    print "\n";
 }
 
 =item cpanm

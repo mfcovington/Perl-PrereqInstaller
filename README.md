@@ -47,6 +47,14 @@ is installed along with this module.
     calls of this method will continue adding to the lists of modules
     that are not installed (or already installed).
 
+- check\_modules\_deep( DIRECTORY, PATTERN )
+
+    Traverses a DIRECTORY and runs `check_modules()` on files that match
+    PATTERN, a case-insensitive regular expression. If omitted, PATTERN
+    defaults to `^.+\.p[lm]$` and matches files ending in `.pl` or
+    `.pm`. Subsequent calls of this method will continue adding to the
+    lists of modules that are not installed (or already installed).
+
 - cpanm
 
     Use cpanm to install loaded modules that are not currently installed.
