@@ -9,6 +9,7 @@ Via command line:
 
     cpanm-missing file.pl
 
+    cpanm-missing-deep path/to/directory
 Via a script:
 
     use Module::Extract::Install;
@@ -33,8 +34,9 @@ the same caveats regarding identifying loaded modules. Therefore,
 modules that are loaded dynamically (e.g., `eval "require $class"`)
 will not be installed.
 
-Command-line usage is possible with `cpanm-missing`, a script that
-is installed along with this module.
+Command-line usage is possible with `cpanm-missing` and
+`cpanm-missing-deep`, scripts that are installed along with this
+module.
 
 - new
 

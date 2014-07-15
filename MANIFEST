@@ -1,4 +1,5 @@
 bin/cpanm-missing
+bin/cpanm-missing-deep
 Build.pl
 CHANGES
 MANIFEST

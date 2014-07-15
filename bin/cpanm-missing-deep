@@ -1,0 +1,37 @@
+#! perl
+use strict;
+use warnings;
+use Module::Extract::Install;
+
+my ( $dir, $pattern ) = @ARGV;
+
+die "cpanm-missing-deep requires at least one argument (a directory)\n"
+    unless defined $dir;
+
+my $installer = Module::Extract::Install->new;
+$installer->check_modules_deep( $dir, $pattern );
+
+my @missing = $installer->not_installed;
+
+if ( scalar @missing > 0 ) {
+    print "\n";
+    print "Modules to install:\n";
+    print "  $_\n" for @missing;
+    print "\n";
+
+    $installer->cpanm;
+    print "\n";
+
+    print "Successfully installed:\n";
+    print "  $_\n" for $installer->newly_installed;
+    print "\n";
+
+    print "Failed to install:\n";
+    print "  $_\n" for $installer->failed_install;
+    print "\n";
+}
+else {
+    print "No missing modules need to be installed!\n";
+}
+
+exit;
