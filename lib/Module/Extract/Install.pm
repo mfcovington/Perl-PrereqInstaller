@@ -101,6 +101,7 @@ sub check_modules {
 
     for my $file (@file_list) {
         my @module_list = $extractor->get_modules($file);
+        next if -s $file >= 1048576;
 
         # Temporary method for error handling:
         if ( $extractor->error ) {
