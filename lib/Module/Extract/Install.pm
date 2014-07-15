@@ -87,22 +87,26 @@ sub check_modules {
 
     my $extractor = Module::Extract::Use->new;
 
+    # Some pragmas and/or modules misbehave or are irrelevant
+    my %banned = (
+        'base'       => 1,
+        'feature'    => 1,
+        'overload'   => 1,
+        'vars'       => 1,
+    );
+
     for my $file (@file_list) {
-        my $details = $extractor->get_modules_with_details($file);
+        my @module_list = $extractor->get_modules($file);
 
         # Temporary method for error handling:
         if ( $extractor->error ) {
             carp "Problem extracting modules used in $file";
         }
 
-        for my $detail (@$details) {
-            my $module  = $detail->module;
-            my @imports = @{ $detail->imports };
+        for my $module (@module_list) {
+            next if exists $banned{$module};
 
-            my $import_call
-                = scalar @imports ? "$module qw(@imports)" : $module;
-
-            eval "use $import_call;";
+            eval "use $module;";
             if ($@) {
                 $self->{_not_installed}{$module}++;
             }
