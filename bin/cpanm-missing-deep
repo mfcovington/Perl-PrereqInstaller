@@ -5,10 +5,11 @@ use File::Basename;
 use Module::Extract::Install;
 use Getopt::Long;
 
-my ( $help, $version );
+my ( $help, $dry_run, $version );
 
 my $options = GetOptions(
     "help"    => \$help,
+    "dry-run" => \$dry_run,
     "version" => \$version,
 );
 
@@ -24,6 +25,7 @@ if ( defined $version ) {
 my $usage = <<EOF;
 usage: $script_name DIRECTORY [REGEX-PATTERN]
     -h, --help
+    -d, --dry-run
     -v, --version
 EOF
 
@@ -40,6 +42,8 @@ if ( scalar @missing > 0 ) {
     print "Modules to install:\n";
     print "  $_\n" for @missing;
     print "\n";
+
+    exit if $dry_run;
 
     $installer->cpanm;
     print "\n";

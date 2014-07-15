@@ -5,7 +5,7 @@ use Carp;
 use File::Find;
 use Module::Extract::Use;
 
-our $VERSION = '0.4.1';
+our $VERSION = '0.4.2';
 
 =head1 NAME
 
@@ -87,22 +87,33 @@ sub check_modules {
 
     my $extractor = Module::Extract::Use->new;
 
+    # Some pragmas and/or modules misbehave or are irrelevant
+    my %banned = (
+        'base'       => 1,
+        'feature'    => 1,
+        'overload'   => 1,
+        'vars'       => 1,
+    );
+
+    # Ignore things such as 'Prototype mismatch' and deprecation warnings
+    my $NOWARN = 0;
+    $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
+
     for my $file (@file_list) {
-        my $details = $extractor->get_modules_with_details($file);
+        my @module_list = $extractor->get_modules($file);
+        next if -s $file >= 1048576;
 
         # Temporary method for error handling:
         if ( $extractor->error ) {
             carp "Problem extracting modules used in $file";
         }
 
-        for my $detail (@$details) {
-            my $module  = $detail->module;
-            my @imports = @{ $detail->imports };
+        for my $module (@module_list) {
+            next if exists $banned{$module};
 
-            my $import_call
-                = scalar @imports ? "$module qw(@imports)" : $module;
-
-            eval "use $import_call;";
+            $NOWARN = 1;
+            eval "use $module;";
+            $NOWARN = 0;
             if ($@) {
                 $self->{_not_installed}{$module}++;
             }

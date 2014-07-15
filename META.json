@@ -36,7 +36,7 @@
    "provides" : {
       "Module::Extract::Install" : {
          "file" : "lib/Module/Extract/Install.pm",
-         "version" : "v0.4.1"
+         "version" : "v0.4.2"
       }
    },
    "release_status" : "stable",
@@ -45,5 +45,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.4.1"
+   "version" : "v0.4.2"
 }
