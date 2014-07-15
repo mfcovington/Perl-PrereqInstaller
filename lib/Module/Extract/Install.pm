@@ -5,7 +5,7 @@ use Carp;
 use File::Find;
 use Module::Extract::Use;
 
-our $VERSION = '0.4.0';
+our $VERSION = '0.4.1';
 
 =head1 NAME
 
@@ -26,6 +26,7 @@ Via a script:
 
     my $installer = Module::Extract::Install->new;
     $installer->check_modules(@files);
+    $installer->check_modules_deep($directory);
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;

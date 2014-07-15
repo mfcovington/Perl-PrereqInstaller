@@ -17,6 +17,7 @@ Via a script:
 
     my $installer = Module::Extract::Install->new;
     $installer->check_modules(@files);
+    $installer->check_modules_deep($directory);
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
