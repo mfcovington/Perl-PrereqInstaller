@@ -95,6 +95,10 @@ sub check_modules {
         'vars'       => 1,
     );
 
+    # Ignore things such as 'Prototype mismatch' and deprecation warnings
+    my $NOWARN = 0;
+    $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
+
     for my $file (@file_list) {
         my @module_list = $extractor->get_modules($file);
 
@@ -106,7 +110,9 @@ sub check_modules {
         for my $module (@module_list) {
             next if exists $banned{$module};
 
+            $NOWARN = 1;
             eval "use $module;";
+            $NOWARN = 0;
             if ($@) {
                 $self->{_not_installed}{$module}++;
             }
