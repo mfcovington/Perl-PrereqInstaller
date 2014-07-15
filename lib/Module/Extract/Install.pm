@@ -5,7 +5,7 @@ use Carp;
 use File::Find;
 use Module::Extract::Use;
 
-our $VERSION = '0.4.0';
+our $VERSION = '0.4.1';
 
 =head1 NAME
 
