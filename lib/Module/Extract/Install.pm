@@ -2,9 +2,10 @@ package Module::Extract::Install;
 use strict;
 use warnings;
 use Carp;
+use File::Find;
 use Module::Extract::Use;
 
-our $VERSION = '0.3.2';
+our $VERSION = '0.4.0';
 
 =head1 NAME
 
@@ -16,6 +17,8 @@ loaded by a Perl script or module
 Via command line:
 
     cpanm-missing file.pl
+
+    cpanm-missing-deep path/to/directory
 
 Via a script:
 
@@ -41,8 +44,9 @@ the same caveats regarding identifying loaded modules. Therefore,
 modules that are loaded dynamically (e.g., C<eval "require $class">)
 will not be installed.
 
-Command-line usage is possible with C<cpanm-missing>, a script that
-is installed along with this module.
+Command-line usage is possible with C<cpanm-missing> and
+C<cpanm-missing-deep>, scripts that are installed along with this
+module.
 
 =cut
 
@@ -106,6 +110,34 @@ sub check_modules {
             }
         }
     }
+}
+
+=item check_modules_deep( DIRECTORY, PATTERN )
+
+Traverses a DIRECTORY and runs C<check_modules()> on files that match
+PATTERN, a case-insensitive regular expression. If omitted, PATTERN
+defaults to C<^.+\.p[lm]$> and matches files ending in C<.pl> or
+C<.pm>. Subsequent calls of this method will continue adding to the
+lists of modules that are not installed (or already installed).
+
+=cut
+
+sub check_modules_deep {
+    my ( $self, $directory, $pattern ) = @_;
+
+    $pattern = defined $pattern ? qr/$pattern/i : qr/^.+\.p[lm]$/i;
+
+    print "\n";
+    print "Files found:\n";
+    find(
+        sub {
+            return unless /$pattern/;
+            print "  $File::Find::dir/$_\n";
+            $self->check_modules($_);
+        },
+        $directory
+    );
+    print "\n";
 }
 
 =item cpanm

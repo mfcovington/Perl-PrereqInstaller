@@ -9,6 +9,8 @@ Via command line:
 
     cpanm-missing file.pl
 
+    cpanm-missing-deep path/to/directory
+
 Via a script:
 
     use Module::Extract::Install;
@@ -33,8 +35,9 @@ the same caveats regarding identifying loaded modules. Therefore,
 modules that are loaded dynamically (e.g., `eval "require $class"`)
 will not be installed.
 
-Command-line usage is possible with `cpanm-missing`, a script that
-is installed along with this module.
+Command-line usage is possible with `cpanm-missing` and
+`cpanm-missing-deep`, scripts that are installed along with this
+module.
 
 - new
 
@@ -46,6 +49,14 @@ is installed along with this module.
     FILES and identifies which are not currently installed. Subsequent
     calls of this method will continue adding to the lists of modules
     that are not installed (or already installed).
+
+- check\_modules\_deep( DIRECTORY, PATTERN )
+
+    Traverses a DIRECTORY and runs `check_modules()` on files that match
+    PATTERN, a case-insensitive regular expression. If omitted, PATTERN
+    defaults to `^.+\.p[lm]$` and matches files ending in `.pl` or
+    `.pm`. Subsequent calls of this method will continue adding to the
+    lists of modules that are not installed (or already installed).
 
 - cpanm
 
