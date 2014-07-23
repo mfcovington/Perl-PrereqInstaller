@@ -1,6 +1,10 @@
 Revision history for Perl module Module::Extract::Install
 
-0.4.2 2014-07-14
+0.4.3 2014-07-23
+
+  - Add tests
+
+0.4.2 2014-07-15
 
   - Add dry-run option for cpanm-missing(-deep)
   - Avoid situations that cause errors and warnings

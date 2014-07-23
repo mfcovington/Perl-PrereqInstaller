@@ -29,9 +29,9 @@ my $builder = Module::Build->new(
         "Getopt::Long"         => 0,
         "Module::Extract::Use" => 0,
     },
-    # build_requires => {
-    #     'Test::More' => 0,
-    # },
+    build_requires => {
+        'Test::More' => 0,
+    },
     configure_requires => {
         'Module::Build' => 0,
     },

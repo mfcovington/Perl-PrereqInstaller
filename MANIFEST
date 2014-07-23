@@ -8,3 +8,8 @@ demo.pl
 lib/Module/Extract/Install.pm
 META.yml
 META.json
+t/00-load.t
+t/manifest.t
+t/module-extract-install.t
+t/pod-coverage.t
+t/pod.t
