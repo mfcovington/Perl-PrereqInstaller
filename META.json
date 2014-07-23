@@ -1,7 +1,7 @@
 {
    "abstract" : "Install missing modules explicitly",
    "author" : [
-      "Michael F. Covington <mfcovington@gmail.com>"
+      "Michael F. Covington, <mfcovington@gmail.com>"
    ],
    "dynamic_config" : 1,
    "generated_by" : "Module::Build version 0.4206",
@@ -14,6 +14,11 @@
    },
    "name" : "Module-Extract-Install",
    "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0"
+         }
+      },
       "configure" : {
          "requires" : {
             "Module::Build" : "0"
@@ -36,7 +41,7 @@
    "provides" : {
       "Module::Extract::Install" : {
          "file" : "lib/Module/Extract/Install.pm",
-         "version" : "v0.4.2"
+         "version" : "v0.4.3"
       }
    },
    "release_status" : "stable",
@@ -45,5 +50,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.4.2"
+   "version" : "v0.4.3"
 }

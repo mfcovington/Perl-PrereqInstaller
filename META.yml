@@ -1,8 +1,9 @@
 ---
 abstract: 'Install missing modules explicitly'
 author:
-  - 'Michael F. Covington <mfcovington@gmail.com>'
-build_requires: {}
+  - 'Michael F. Covington, <mfcovington@gmail.com>'
+build_requires:
+  Test::More: '0'
 configure_requires:
   Module::Build: '0'
 dynamic_config: 1
@@ -15,7 +16,7 @@ name: Module-Extract-Install
 provides:
   Module::Extract::Install:
     file: lib/Module/Extract/Install.pm
-    version: v0.4.2
+    version: v0.4.3
 recommends:
   Pod::Markdown: '0'
 requires:
@@ -27,4 +28,4 @@ requires:
   Module::Extract::Use: '0'
 resources:
   license: http://dev.perl.org/licenses/
-version: v0.4.2
+version: v0.4.3
