@@ -89,10 +89,13 @@ sub check_modules {
 
     # Some pragmas and/or modules misbehave or are irrelevant
     my %banned = (
-        'base'       => 1,
-        'feature'    => 1,
-        'overload'   => 1,
-        'vars'       => 1,
+        'autodie'  => 1,
+        'base'     => 1,
+        'feature'  => 1,
+        'overload' => 1,
+        'strict'   => 1,
+        'vars'     => 1,
+        'warnings' => 1,
     );
 
     # Ignore things such as 'Prototype mismatch' and deprecation warnings
