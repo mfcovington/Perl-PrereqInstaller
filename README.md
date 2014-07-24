@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mfcovington/module-extract-install.svg?branch=master)](https://travis-ci.org/mfcovington/module-extract-install) [![Coverage Status](https://coveralls.io/repos/mfcovington/module-extract-install/badge.png?branch=master)](https://coveralls.io/r/mfcovington/module-extract-install?branch=master)
+
 # NAME
 
 Module::Extract::Install - Install missing modules explicitly
