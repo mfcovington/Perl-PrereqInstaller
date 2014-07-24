@@ -2,9 +2,8 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 6;
+use Test::More tests => 8;
 
-use lib 'lib';
 BEGIN {
     eval "use Module::Extract::Install";
 }
@@ -28,11 +27,8 @@ my @failed_install      = $installer->failed_install;
 my @still_not_installed = $installer->not_installed;
 
 isa_ok( $installer, 'Module::Extract::Install' );
-is_deeply(
-    \@installed,
-    [ 'Test::More', 'lib' ],
-    'Find modules that are already installed'
-);
+is_deeply( \@installed, ['Test::More'],
+    'Find modules that are already installed' );
 is_deeply(
     \@not_installed,
     [ '--version', 'A::Non::Existent::Perl::Module' ],
@@ -51,4 +47,15 @@ is_deeply(
     'Report which modules still need to be installed'
 );
 
-done_testing();
+my $deep_installer = Module::Extract::Install->new;
+$deep_installer->check_modules_deep("t/deep");
+my @not_installed_deep = $deep_installer->not_installed;
+my @installed_deep     = $deep_installer->previously_installed;
+
+is_deeply( \@installed_deep, ['Test::More'],
+    'Find modules that are already installed deep' );
+is_deeply(
+    \@not_installed_deep,
+    ['Another::Non::Existent::Perl::Module'],
+    'Find modules that are not yet installed deep'
+);

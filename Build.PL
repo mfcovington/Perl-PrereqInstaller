@@ -50,6 +50,22 @@ sub pod2markdown {
     my ( $pod_file, $markdown_file ) = @_;
     open my $markdown_fh, ">", $markdown_file
         or die "Cannot open $markdown_file for writing: $!";
+
+    my $travis_ci__badge
+        = "https://travis-ci.org/mfcovington/module-extract-install.svg?branch=master";
+    my $travis_ci_url
+        = "https://travis-ci.org/mfcovington/module-extract-install";
+    my $travis_ci_status
+        = "[![Build Status]($travis_ci__badge)]($travis_ci_url)";
+
+    my $coveralls_badge
+        = "https://coveralls.io/repos/mfcovington/module-extract-install/badge.png?branch=master";
+    my $coveralls_url
+        = "https://coveralls.io/r/mfcovington/module-extract-install?branch=master";
+    my $coveralls_status
+        = "[![Coverage Status]($coveralls_badge)]($coveralls_url)";
+    print $markdown_fh "$travis_ci_status $coveralls_status\n\n";
+
     my $parser = Pod::Markdown->new();
     $parser->output_fh($markdown_fh);
     $parser->parse_file($pod_file);
