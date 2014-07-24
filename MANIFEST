@@ -1,6 +1,6 @@
 bin/cpanm-missing
 bin/cpanm-missing-deep
-Build.pl
+Build.PL
 CHANGES
 MANIFEST
 README.md
