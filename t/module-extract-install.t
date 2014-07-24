@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all';
 use Test::More tests => 6;
 
-use lib 'lib';
 BEGIN {
     eval "use Module::Extract::Install";
 }
@@ -28,11 +27,8 @@ my @failed_install      = $installer->failed_install;
 my @still_not_installed = $installer->not_installed;
 
 isa_ok( $installer, 'Module::Extract::Install' );
-is_deeply(
-    \@installed,
-    [ 'Test::More', 'lib' ],
-    'Find modules that are already installed'
-);
+is_deeply( \@installed, ['Test::More'],
+    'Find modules that are already installed' );
 is_deeply(
     \@not_installed,
     [ '--version', 'A::Non::Existent::Perl::Module' ],
