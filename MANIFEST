@@ -13,3 +13,5 @@ t/manifest.t
 t/module-extract-install.t
 t/pod-coverage.t
 t/pod.t
+t/deep/deep-script.pl
+t/deep/deeper/deeper-script.pl
