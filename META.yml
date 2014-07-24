@@ -16,7 +16,7 @@ name: Module-Extract-Install
 provides:
   Module::Extract::Install:
     file: lib/Module/Extract/Install.pm
-    version: v0.4.3
+    version: v0.4.4
 recommends:
   Pod::Markdown: '0'
 requires:
@@ -28,4 +28,4 @@ requires:
   Module::Extract::Use: '0'
 resources:
   license: http://dev.perl.org/licenses/
-version: v0.4.3
+version: v0.4.4
