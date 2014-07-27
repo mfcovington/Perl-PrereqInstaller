@@ -46,10 +46,11 @@ Via a script:
 
 Extract the names of the modules explicitly loaded in a Perl script or
 module and install them if they are not already installed. Since this
-module relies on L<Module::Extract::Use|Module::Extract::Use>, it has
-the same caveats regarding identifying loaded modules. Therefore,
-modules that are loaded dynamically (e.g., C<eval "require $class">)
-will not be installed.
+module relies on L<Perl::PrereqScanner|Perl::PrereqScanner> to
+statically identify dependencies, it has the same caveats regarding
+identifying loaded modules. Therefore, modules that are loaded
+dynamically (e.g., C<eval "require $class">) will not be identified
+as dependencies or installed.
 
 Command-line usage is possible with C<cpanm-missing> and
 C<cpanm-missing-deep>, scripts that are installed along with this
@@ -241,6 +242,8 @@ sub failed_install {
 
 =head1 SEE ALSO
 
+L<lib::xi|lib::xi>
+L<Perl::PrereqScanner|Perl::PrereqScanner>
 L<Module::Extract::Use|Module::Extract::Use>
 
 =head1 SOURCE AVAILABILITY

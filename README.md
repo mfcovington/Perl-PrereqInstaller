@@ -37,10 +37,11 @@ Via a script:
 
 Extract the names of the modules explicitly loaded in a Perl script or
 module and install them if they are not already installed. Since this
-module relies on [Module::Extract::Use](https://metacpan.org/pod/Module::Extract::Use), it has
-the same caveats regarding identifying loaded modules. Therefore,
-modules that are loaded dynamically (e.g., `eval "require $class"`)
-will not be installed.
+module relies on [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner) to
+statically identify dependencies, it has the same caveats regarding
+identifying loaded modules. Therefore, modules that are loaded
+dynamically (e.g., `eval "require $class"`) will not be identified
+as dependencies or installed.
 
 Command-line usage is possible with `cpanm-missing` and
 `cpanm-missing-deep`, scripts that are installed along with this
@@ -94,6 +95,8 @@ module.
 
 # SEE ALSO
 
+[lib::xi](https://metacpan.org/pod/lib::xi)
+[Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner)
 [Module::Extract::Use](https://metacpan.org/pod/Module::Extract::Use)
 
 # SOURCE AVAILABILITY
