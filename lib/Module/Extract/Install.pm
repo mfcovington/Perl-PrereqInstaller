@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 use File::Find;
-use Module::Extract::Use;
+use Perl::PrereqScanner;
 
 =head1 NAME
 
@@ -91,7 +91,7 @@ that are not installed (or already installed).
 sub check_modules {
     my ( $self, @file_list ) = @_;
 
-    my $extractor = Module::Extract::Use->new;
+    my $scanner = Perl::PrereqScanner->new;
 
     # Some pragmas and/or modules misbehave or are irrelevant
     my %banned = (
@@ -99,6 +99,7 @@ sub check_modules {
         'base'     => 1,
         'feature'  => 1,
         'overload' => 1,
+        'perl'     => 1,
         'strict'   => 1,
         'vars'     => 1,
         'warnings' => 1,
@@ -109,13 +110,13 @@ sub check_modules {
     $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
 
     for my $file (@file_list) {
-        my @module_list = $extractor->get_modules($file);
+        my @module_list = keys %{ ${ $scanner->scan_file($file) }{'requirements'} };
         next if -s $file >= 1048576;
 
-        # Temporary method for error handling:
-        if ( $extractor->error ) {
-            carp "Problem extracting modules used in $file";
-        }
+        # # Temporary method for error handling:
+        # if ( $extractor->error ) {
+        #     carp "Problem extracting modules used in $file";
+        # }
 
         for my $module (@module_list) {
             next if exists $banned{$module};
