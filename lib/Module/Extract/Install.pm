@@ -121,7 +121,7 @@ sub check_modules {
             next if exists $banned{$module};
 
             $NOWARN = 1;
-            eval "use $module;";
+            eval "require $module;";
             $NOWARN = 0;
             if ($@) {
                 $self->{_not_installed}{$module}++;
