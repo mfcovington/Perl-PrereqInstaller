@@ -110,6 +110,7 @@ sub check_modules {
     $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
 
     for my $file (@file_list) {
+        next unless -e $file;
         next if -s $file >= 1048576;
         my @module_list = keys %{ ${ $scanner->scan_file($file) }{'requirements'} };
 
