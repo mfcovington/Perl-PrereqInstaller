@@ -110,8 +110,8 @@ sub check_modules {
     $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
 
     for my $file (@file_list) {
-        my @module_list = keys %{ ${ $scanner->scan_file($file) }{'requirements'} };
         next if -s $file >= 1048576;
+        my @module_list = keys %{ ${ $scanner->scan_file($file) }{'requirements'} };
 
         # # Temporary method for error handling:
         # if ( $extractor->error ) {
