@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN {
     eval "use Module::Extract::Install";
@@ -46,6 +46,11 @@ is_deeply(
     ['A::Non::Existent::Perl::Module'],
     'Report which modules still need to be installed'
 );
+
+$installer->check_modules('t/bad/scan-error.pl');
+my @scan_errors = $installer->scan_errors;
+is_deeply( \@scan_errors, ['t/bad/scan-error.pl'],
+    'Report files with scan errors' );
 
 my $deep_installer = Module::Extract::Install->new;
 $deep_installer->check_modules_deep("t/deep");
