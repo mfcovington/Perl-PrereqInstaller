@@ -35,6 +35,13 @@ die $usage if scalar @files == 0;
 my $installer = Module::Extract::Install->new;
 $installer->check_modules(@files);
 
+my @scan_errors = $installer->scan_errors;
+
+if ( scalar @scan_errors > 0 ) {
+    print "File parsing errors:\n";
+    print "  $_\n" for @scan_errors;
+}
+
 my @missing = $installer->not_installed;
 
 if ( scalar @missing > 0 ) {

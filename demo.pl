@@ -7,8 +7,9 @@ use Module::Extract::Install;
 my @files = @ARGV;
 
 my $installer = Module::Extract::Install->new;
-$installer->check_modules(@files);
+$installer->check_modules(@files) if $installer->check_modules(@files);
 
+print "OOPS: $_\n"          for $installer->scan_errors;
 print "NOT INSTALLED: $_\n" for $installer->not_installed;
 print "INSTALLED: $_\n"     for $installer->previously_installed;
 

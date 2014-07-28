@@ -34,6 +34,8 @@ Via a script:
     $installer->check_modules(@files);
     $installer->check_modules_deep($directory);
 
+    my @scan_errors = $installer->scan_errors;
+
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
 
@@ -74,6 +76,7 @@ sub new {
         _previously_installed => {},
         _newly_installed      => {},
         _failed_install       => {},
+        _scan_errors          => [],
     };
     bless $self, $class;
 
@@ -113,12 +116,14 @@ sub check_modules {
     for my $file (@file_list) {
         next unless -e $file;
         next if -s $file >= 1048576;
-        my @module_list = keys %{ ${ $scanner->scan_file($file) }{'requirements'} };
 
-        # # Temporary method for error handling:
-        # if ( $extractor->error ) {
-        #     carp "Problem extracting modules used in $file";
-        # }
+        my $prereqs;
+        eval { $prereqs = $scanner->scan_file($file) };
+        if ($@) {
+            push @{ $self->{_scan_errors} }, $file;
+            next;
+        }
+        my @module_list = keys %{ $$prereqs{'requirements'} };
 
         for my $module (@module_list) {
             next if exists $banned{$module};
@@ -236,6 +241,18 @@ failed.
 sub failed_install {
     my $self = shift;
     return sort keys %{ $self->{_failed_install} };
+}
+
+=item scan_errors
+
+Returns a list of files that produced a parsing error
+when being scanned. These files are skipped.
+
+=cut
+
+sub scan_errors {
+    my $self = shift;
+    return @{ $self->{_scan_errors} };
 }
 
 =back

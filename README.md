@@ -25,6 +25,8 @@ Via a script:
     $installer->check_modules(@files);
     $installer->check_modules_deep($directory);
 
+    my @scan_errors = $installer->scan_errors;
+
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
 
@@ -92,6 +94,11 @@ module.
     Returns an alphabetical list of unique modules that were
     explicitly loaded and needed to be installed, but whose installation
     failed.
+
+- scan\_errors
+
+    Returns a list of files that produced a parsing error
+    when being scanned. These files are skipped.
 
 # SEE ALSO
 

@@ -35,6 +35,13 @@ die $usage unless defined $dir;
 my $installer = Module::Extract::Install->new;
 $installer->check_modules_deep( $dir, $pattern );
 
+my @scan_errors = $installer->scan_errors;
+
+if ( scalar @scan_errors > 0 ) {
+    print "File parsing errors:\n";
+    print "  $_\n" for @scan_errors;
+}
+
 my @missing = $installer->not_installed;
 
 if ( scalar @missing > 0 ) {
