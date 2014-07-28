@@ -24,6 +24,7 @@ my $builder = Module::Build->new(
     requires => {
         "App::cpanminus"      => 0,
         "Carp"                => 0,
+        "Cwd"                 => 0,
         "File::Basename"      => 0,
         "File::Find"          => 0,
         "Getopt::Long"        => 0,

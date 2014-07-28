@@ -2,6 +2,7 @@ package Module::Extract::Install;
 use strict;
 use warnings;
 use Carp;
+use Cwd;
 use File::Find;
 use Perl::PrereqScanner;
 
@@ -161,8 +162,10 @@ sub check_modules_deep {
     find(
         sub {
             return unless /$pattern/;
-            print "  $File::Find::dir/$_\n";
-            $self->check_modules($_);
+            my $cwd       = getcwd;
+            my $file_path = "$cwd/$_";
+            print "  $file_path\n";
+            $self->check_modules("$file_path");
         },
         $directory
     );
