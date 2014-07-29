@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/mfcovington/module-extract-install.svg?branch=master)](https://travis-ci.org/mfcovington/module-extract-install) [![Coverage Status](https://coveralls.io/repos/mfcovington/module-extract-install/badge.png?branch=master)](https://coveralls.io/r/mfcovington/module-extract-install?branch=master)
+[![Build Status](https://travis-ci.org/mfcovington/Perl-PrereqInstaller.svg?branch=master)](https://travis-ci.org/mfcovington/Perl-PrereqInstaller) [![Coverage Status](https://coveralls.io/repos/mfcovington/Perl-PrereqInstaller/badge.png?branch=master)](https://coveralls.io/r/mfcovington/Perl-PrereqInstaller?branch=master)
 
 # NAME
 
-Module::Extract::Install - Install missing modules explicitly
+Perl::PrereqInstaller - Install missing modules explicitly
 loaded by a Perl script or module
 
 # VERSION
 
-Version 0.4.4
+Version 0.5.0
 
 # SYNOPSIS
 
@@ -19,11 +19,13 @@ Via command line:
 
 Via a script:
 
-    use Module::Extract::Install;
+    use Perl::PrereqInstaller;
 
-    my $installer = Module::Extract::Install->new;
+    my $installer = Perl::PrereqInstaller->new;
     $installer->check_modules(@files);
     $installer->check_modules_deep($directory);
+
+    my @scan_errors = $installer->scan_errors;
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
@@ -37,10 +39,11 @@ Via a script:
 
 Extract the names of the modules explicitly loaded in a Perl script or
 module and install them if they are not already installed. Since this
-module relies on [Module::Extract::Use](https://metacpan.org/pod/Module::Extract::Use), it has
-the same caveats regarding identifying loaded modules. Therefore,
-modules that are loaded dynamically (e.g., `eval "require $class"`)
-will not be installed.
+module relies on [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner) to
+statically identify dependencies, it has the same caveats regarding
+identifying loaded modules. Therefore, modules that are loaded
+dynamically (e.g., `eval "require $class"`) will not be identified
+as dependencies or installed.
 
 Command-line usage is possible with `cpanm-missing` and
 `cpanm-missing-deep`, scripts that are installed along with this
@@ -48,7 +51,7 @@ module.
 
 - new
 
-    Initializes a new Module::Extract::Install object.
+    Initializes a new Perl::PrereqInstaller object.
 
 - check\_modules( FILES )
 
@@ -92,8 +95,15 @@ module.
     explicitly loaded and needed to be installed, but whose installation
     failed.
 
+- scan\_errors
+
+    Returns a list of files that produced a parsing error
+    when being scanned. These files are skipped.
+
 # SEE ALSO
 
+[lib::xi](https://metacpan.org/pod/lib::xi)
+[Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner)
 [Module::Extract::Use](https://metacpan.org/pod/Module::Extract::Use)
 
 # SOURCE AVAILABILITY
@@ -123,7 +133,7 @@ To install this module, run the following commands:
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Module::Extract::Install
+    perldoc Perl::PrereqInstaller
 
 # LICENSE AND COPYRIGHT
 

@@ -1,22 +1,23 @@
-package Module::Extract::Install;
+package Perl::PrereqInstaller;
 use strict;
 use warnings;
 use Carp;
+use Cwd;
 use File::Find;
-use Module::Extract::Use;
+use Perl::PrereqScanner;
 
 =head1 NAME
 
-Module::Extract::Install - Install missing modules explicitly
+Perl::PrereqInstaller - Install missing modules explicitly
 loaded by a Perl script or module
 
 =head1 VERSION
 
-Version 0.4.4
+Version 0.5.0
 
 =cut
 
-our $VERSION = '0.4.4';
+our $VERSION = '0.5.0';
 
 =head1 SYNOPSIS
 
@@ -28,11 +29,13 @@ Via command line:
 
 Via a script:
 
-    use Module::Extract::Install;
+    use Perl::PrereqInstaller;
 
-    my $installer = Module::Extract::Install->new;
+    my $installer = Perl::PrereqInstaller->new;
     $installer->check_modules(@files);
     $installer->check_modules_deep($directory);
+
+    my @scan_errors = $installer->scan_errors;
 
     my @uninstalled = $installer->not_installed;
     my @installed   = $installer->previously_installed;
@@ -46,10 +49,11 @@ Via a script:
 
 Extract the names of the modules explicitly loaded in a Perl script or
 module and install them if they are not already installed. Since this
-module relies on L<Module::Extract::Use|Module::Extract::Use>, it has
-the same caveats regarding identifying loaded modules. Therefore,
-modules that are loaded dynamically (e.g., C<eval "require $class">)
-will not be installed.
+module relies on L<Perl::PrereqScanner|Perl::PrereqScanner> to
+statically identify dependencies, it has the same caveats regarding
+identifying loaded modules. Therefore, modules that are loaded
+dynamically (e.g., C<eval "require $class">) will not be identified
+as dependencies or installed.
 
 Command-line usage is possible with C<cpanm-missing> and
 C<cpanm-missing-deep>, scripts that are installed along with this
@@ -61,7 +65,7 @@ module.
 
 =item new
 
-Initializes a new Module::Extract::Install object.
+Initializes a new Perl::PrereqInstaller object.
 
 =cut
 
@@ -73,6 +77,7 @@ sub new {
         _previously_installed => {},
         _newly_installed      => {},
         _failed_install       => {},
+        _scan_errors          => [],
     };
     bless $self, $class;
 
@@ -91,7 +96,7 @@ that are not installed (or already installed).
 sub check_modules {
     my ( $self, @file_list ) = @_;
 
-    my $extractor = Module::Extract::Use->new;
+    my $scanner = Perl::PrereqScanner->new;
 
     # Some pragmas and/or modules misbehave or are irrelevant
     my %banned = (
@@ -99,6 +104,7 @@ sub check_modules {
         'base'     => 1,
         'feature'  => 1,
         'overload' => 1,
+        'perl'     => 1,
         'strict'   => 1,
         'vars'     => 1,
         'warnings' => 1,
@@ -109,19 +115,22 @@ sub check_modules {
     $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
 
     for my $file (@file_list) {
-        my @module_list = $extractor->get_modules($file);
+        next unless -e $file;
         next if -s $file >= 1048576;
 
-        # Temporary method for error handling:
-        if ( $extractor->error ) {
-            carp "Problem extracting modules used in $file";
+        my $prereqs;
+        eval { $prereqs = $scanner->scan_file($file) };
+        if ($@) {
+            push @{ $self->{_scan_errors} }, $file;
+            next;
         }
+        my @module_list = keys %{ $$prereqs{'requirements'} };
 
         for my $module (@module_list) {
             next if exists $banned{$module};
 
             $NOWARN = 1;
-            eval "use $module;";
+            eval "require $module;";
             $NOWARN = 0;
             if ($@) {
                 $self->{_not_installed}{$module}++;
@@ -153,8 +162,10 @@ sub check_modules_deep {
     find(
         sub {
             return unless /$pattern/;
-            print "  $File::Find::dir/$_\n";
-            $self->check_modules($_);
+            my $cwd       = getcwd;
+            my $file_path = "$cwd/$_";
+            print "  $file_path\n";
+            $self->check_modules("$file_path");
         },
         $directory
     );
@@ -235,10 +246,24 @@ sub failed_install {
     return sort keys %{ $self->{_failed_install} };
 }
 
+=item scan_errors
+
+Returns a list of files that produced a parsing error
+when being scanned. These files are skipped.
+
+=cut
+
+sub scan_errors {
+    my $self = shift;
+    return @{ $self->{_scan_errors} };
+}
+
 =back
 
 =head1 SEE ALSO
 
+L<lib::xi|lib::xi>
+L<Perl::PrereqScanner|Perl::PrereqScanner>
 L<Module::Extract::Use|Module::Extract::Use>
 
 =head1 SOURCE AVAILABILITY
@@ -269,7 +294,7 @@ To install this module, run the following commands:
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Module::Extract::Install
+    perldoc Perl::PrereqInstaller
 
 =head1 LICENSE AND COPYRIGHT
 
