@@ -100,6 +100,13 @@ this module.
     Returns a list of files that produced a parsing error
     when being scanned. These files are skipped.
 
+- scan\_warnings
+
+    Returns a hash of arrays containing the names of files (the keys) that
+    raised warnings (the array contents) during parsing. These warnings
+    are likely indicative of issues with the code in the parsed files
+    rather than actual parsing problems.
+
 # SEE ALSO
 
 [lib::xi](https://metacpan.org/pod/lib::xi)

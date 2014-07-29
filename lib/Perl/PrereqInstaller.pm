@@ -78,6 +78,7 @@ sub new {
         _newly_installed      => {},
         _failed_install       => {},
         _scan_errors          => [],
+        _scan_warnings        => {},
         _banned => { # Some pragmas and/or modules misbehave or are irrelevant
             'autodie'  => 1,
             'base'     => 1,
@@ -108,10 +109,6 @@ sub check_modules {
 
     my $scanner = Perl::PrereqScanner->new;
 
-    # Ignore things such as 'Prototype mismatch' and deprecation warnings
-    my $NOWARN = 0;
-    $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
-
     for my $file (@file_list) {
         next unless -e $file;
         next if -s $file >= 1048576;
@@ -127,9 +124,11 @@ sub check_modules {
         for my $module (@module_list) {
             next if exists $self->{_banned}{$module};
 
-            $NOWARN = 1;
+            my $CATCH_WARNING = 1;
+            $SIG{'__WARN__'}
+                = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
             eval "require $module;";
-            $NOWARN = 0;
+            $CATCH_WARNING = 0;
             if ($@) {
                 $self->{_not_installed}{$module}++;
             }
@@ -138,6 +137,16 @@ sub check_modules {
             }
         }
     }
+}
+
+sub _catch_warning {
+    my ( $self, $file, $warning, $CATCH_WARNING ) = @_;
+
+    if ($CATCH_WARNING) {
+        chomp $warning;
+        push @{ $self->{_scan_warnings}{$file} }, $warning;
+    }
+    else { warn $warning }
 }
 
 =item check_modules_deep( DIRECTORY, PATTERN )
@@ -254,6 +263,20 @@ when being scanned. These files are skipped.
 sub scan_errors {
     my $self = shift;
     return @{ $self->{_scan_errors} };
+}
+
+=item scan_warnings
+
+Returns a hash of arrays containing the names of files (the keys) that
+raised warnings (the array contents) during parsing. These warnings
+are likely indicative of issues with the code in the parsed files
+rather than actual parsing problems.
+
+=cut
+
+sub scan_warnings {
+    my $self = shift;
+    return %{ $self->{_scan_warnings} };
 }
 
 =back
