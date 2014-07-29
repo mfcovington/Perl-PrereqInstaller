@@ -2,13 +2,14 @@
 use strict;
 use warnings;
 use lib 'lib';
-use Module::Extract::Install;
+use Perl::PrereqInstaller;
 
 my @files = @ARGV;
 
-my $installer = Module::Extract::Install->new;
-$installer->check_modules(@files);
+my $installer = Perl::PrereqInstaller->new;
+$installer->check_modules(@files) if $installer->check_modules(@files);
 
+print "OOPS: $_\n"          for $installer->scan_errors;
 print "NOT INSTALLED: $_\n" for $installer->not_installed;
 print "INSTALLED: $_\n"     for $installer->previously_installed;
 

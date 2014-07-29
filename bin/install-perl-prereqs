@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use File::Basename;
-use Module::Extract::Install;
+use Perl::PrereqInstaller;
 use Getopt::Long;
 
 my ( $help, $dry_run, $version );
@@ -13,27 +13,34 @@ my $options = GetOptions(
     "version" => \$version,
 );
 
-my ( $dir, $pattern ) = @ARGV;
+my @files = @ARGV;
 
 my $script_path = $0;
 my $script_name = fileparse $script_path;
 
 if ( defined $version ) {
-    die "$script_name v$Module::Extract::Install::VERSION\n";
+    die "$script_name v$Perl::PrereqInstaller::VERSION\n";
 }
 
 my $usage = <<EOF;
-usage: $script_name DIRECTORY [REGEX-PATTERN]
+usage: $script_name PERL-FILE1 [PERL-FILE2 ...]
     -h, --help
     -d, --dry-run
     -v, --version
 EOF
 
 die $usage if defined $help;
-die $usage unless defined $dir;
+die $usage if scalar @files == 0;
 
-my $installer = Module::Extract::Install->new;
-$installer->check_modules_deep( $dir, $pattern );
+my $installer = Perl::PrereqInstaller->new;
+$installer->check_modules(@files);
+
+my @scan_errors = $installer->scan_errors;
+
+if ( scalar @scan_errors > 0 ) {
+    print "File parsing errors:\n";
+    print "  $_\n" for @scan_errors;
+}
 
 my @missing = $installer->not_installed;
 
