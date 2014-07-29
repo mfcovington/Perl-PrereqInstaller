@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "Module-Extract-Install",
+   "name" : "Perl-PrereqInstaller",
    "prereqs" : {
       "build" : {
          "requires" : {
@@ -31,17 +31,18 @@
          "requires" : {
             "App::cpanminus" : "0",
             "Carp" : "0",
+            "Cwd" : "0",
             "File::Basename" : "0",
             "File::Find" : "0",
             "Getopt::Long" : "0",
-            "Module::Extract::Use" : "0"
+            "Perl::PrereqScanner" : "0"
          }
       }
    },
    "provides" : {
-      "Module::Extract::Install" : {
-         "file" : "lib/Module/Extract/Install.pm",
-         "version" : "v0.4.4"
+      "Perl::PrereqInstaller" : {
+         "file" : "lib/Perl/PrereqInstaller.pm",
+         "version" : "v0.5.0"
       }
    },
    "release_status" : "stable",
@@ -50,5 +51,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.4.4"
+   "version" : "v0.5.0"
 }

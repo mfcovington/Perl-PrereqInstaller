@@ -13,11 +13,11 @@ loaded by a Perl script or module
 
 =head1 VERSION
 
-Version 0.4.4
+Version 0.5.0
 
 =cut
 
-our $VERSION = '0.4.4';
+our $VERSION = '0.5.0';
 
 =head1 SYNOPSIS
 

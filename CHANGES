@@ -1,5 +1,11 @@
 Revision history for Perl module Perl::PrereqInstaller
 
+0.5.0 2014-07-28
+
+  - Switch from Module::Extract::Use to Perl::PrereqScanner
+  - Rename Module::Extract::Install to Perl::PrereqInstaller
+  - Rename cpanm-missing(-deep) to install-perl-prereqs(-deep)
+
 0.4.4 2014-07-23
 
   - Track build status with Travis CI
