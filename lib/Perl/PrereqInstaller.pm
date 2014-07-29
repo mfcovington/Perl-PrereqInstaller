@@ -78,6 +78,16 @@ sub new {
         _newly_installed      => {},
         _failed_install       => {},
         _scan_errors          => [],
+        _banned => { # Some pragmas and/or modules misbehave or are irrelevant
+            'autodie'  => 1,
+            'base'     => 1,
+            'feature'  => 1,
+            'overload' => 1,
+            'perl'     => 1,
+            'strict'   => 1,
+            'vars'     => 1,
+            'warnings' => 1,
+        },
     };
     bless $self, $class;
 
@@ -98,18 +108,6 @@ sub check_modules {
 
     my $scanner = Perl::PrereqScanner->new;
 
-    # Some pragmas and/or modules misbehave or are irrelevant
-    my %banned = (
-        'autodie'  => 1,
-        'base'     => 1,
-        'feature'  => 1,
-        'overload' => 1,
-        'perl'     => 1,
-        'strict'   => 1,
-        'vars'     => 1,
-        'warnings' => 1,
-    );
-
     # Ignore things such as 'Prototype mismatch' and deprecation warnings
     my $NOWARN = 0;
     $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
@@ -127,7 +125,7 @@ sub check_modules {
         my @module_list = keys %{ $$prereqs{'requirements'} };
 
         for my $module (@module_list) {
-            next if exists $banned{$module};
+            next if exists $self->{_banned}{$module};
 
             $NOWARN = 1;
             eval "require $module;";
