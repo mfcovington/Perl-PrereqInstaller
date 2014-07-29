@@ -6,7 +6,7 @@ use Module::Build;
 # TODO: Add version specifications for requirements
 # TODO: Add perl + version to requirements
 
-my $module_file = "lib/Module/Extract/Install.pm";
+my $module_file = "lib/Perl/PrereqInstaller.pm";
 my @scripts = grep { -f and !-d } glob 'bin/*';
 
 eval "use Pod::Markdown";
@@ -17,7 +17,7 @@ if ( ! $@ ) {
 }
 
 my $builder = Module::Build->new(
-    module_name        => 'Module::Extract::Install',
+    module_name        => 'Perl::PrereqInstaller',
     dist_version_from  => $module_file,
     license            => 'perl',
     create_makefile_pl => 0,
@@ -53,16 +53,16 @@ sub pod2markdown {
         or die "Cannot open $markdown_file for writing: $!";
 
     my $travis_ci__badge
-        = "https://travis-ci.org/mfcovington/module-extract-install.svg?branch=master";
+        = "https://travis-ci.org/mfcovington/Perl-PrereqInstaller.svg?branch=master";
     my $travis_ci_url
-        = "https://travis-ci.org/mfcovington/module-extract-install";
+        = "https://travis-ci.org/mfcovington/Perl-PrereqInstaller";
     my $travis_ci_status
         = "[![Build Status]($travis_ci__badge)]($travis_ci_url)";
 
     my $coveralls_badge
-        = "https://coveralls.io/repos/mfcovington/module-extract-install/badge.png?branch=master";
+        = "https://coveralls.io/repos/mfcovington/Perl-PrereqInstaller/badge.png?branch=master";
     my $coveralls_url
-        = "https://coveralls.io/r/mfcovington/module-extract-install?branch=master";
+        = "https://coveralls.io/r/mfcovington/Perl-PrereqInstaller?branch=master";
     my $coveralls_status
         = "[![Coverage Status]($coveralls_badge)]($coveralls_url)";
     print $markdown_fh "$travis_ci_status $coveralls_status\n\n";

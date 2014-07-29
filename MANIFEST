@@ -5,12 +5,12 @@ CHANGES
 MANIFEST
 README.md
 demo.pl
-lib/Module/Extract/Install.pm
+lib/Perl/PrereqInstaller.pm
 META.yml
 META.json
 t/00-load.t
 t/manifest.t
-t/module-extract-install.t
+t/perl-prereqinstaller.t
 t/pod-coverage.t
 t/pod.t
 t/deep/deep-script.pl

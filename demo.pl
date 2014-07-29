@@ -2,11 +2,11 @@
 use strict;
 use warnings;
 use lib 'lib';
-use Module::Extract::Install;
+use Perl::PrereqInstaller;
 
 my @files = @ARGV;
 
-my $installer = Module::Extract::Install->new;
+my $installer = Perl::PrereqInstaller->new;
 $installer->check_modules(@files) if $installer->check_modules(@files);
 
 print "OOPS: $_\n"          for $installer->scan_errors;

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use File::Basename;
-use Module::Extract::Install;
+use Perl::PrereqInstaller;
 use Getopt::Long;
 
 my ( $help, $dry_run, $version );
@@ -19,7 +19,7 @@ my $script_path = $0;
 my $script_name = fileparse $script_path;
 
 if ( defined $version ) {
-    die "$script_name v$Module::Extract::Install::VERSION\n";
+    die "$script_name v$Perl::PrereqInstaller::VERSION\n";
 }
 
 my $usage = <<EOF;
@@ -32,7 +32,7 @@ EOF
 die $usage if defined $help;
 die $usage unless defined $dir;
 
-my $installer = Module::Extract::Install->new;
+my $installer = Perl::PrereqInstaller->new;
 $installer->check_modules_deep( $dir, $pattern );
 
 my @scan_errors = $installer->scan_errors;

@@ -1,4 +1,4 @@
-package Module::Extract::Install;
+package Perl::PrereqInstaller;
 use strict;
 use warnings;
 use Carp;
@@ -8,7 +8,7 @@ use Perl::PrereqScanner;
 
 =head1 NAME
 
-Module::Extract::Install - Install missing modules explicitly
+Perl::PrereqInstaller - Install missing modules explicitly
 loaded by a Perl script or module
 
 =head1 VERSION
@@ -29,9 +29,9 @@ Via command line:
 
 Via a script:
 
-    use Module::Extract::Install;
+    use Perl::PrereqInstaller;
 
-    my $installer = Module::Extract::Install->new;
+    my $installer = Perl::PrereqInstaller->new;
     $installer->check_modules(@files);
     $installer->check_modules_deep($directory);
 
@@ -65,7 +65,7 @@ module.
 
 =item new
 
-Initializes a new Module::Extract::Install object.
+Initializes a new Perl::PrereqInstaller object.
 
 =cut
 
@@ -294,7 +294,7 @@ To install this module, run the following commands:
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Module::Extract::Install
+    perldoc Perl::PrereqInstaller
 
 =head1 LICENSE AND COPYRIGHT
 
