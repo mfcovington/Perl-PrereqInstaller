@@ -1,5 +1,5 @@
-bin/cpanm-missing
-bin/cpanm-missing-deep
+bin/install-perl-prereqs
+bin/install-perl-prereqs-deep
 Build.PL
 CHANGES
 MANIFEST
