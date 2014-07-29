@@ -7,7 +7,7 @@ loaded by a Perl script or module
 
 # VERSION
 
-Version 0.4.4
+Version 0.5.0
 
 # SYNOPSIS
 
