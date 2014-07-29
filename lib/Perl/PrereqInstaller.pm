@@ -23,9 +23,9 @@ our $VERSION = '0.5.0';
 
 Via command line:
 
-    cpanm-missing file.pl
+    install-perl-prereqs file.pl
 
-    cpanm-missing-deep path/to/directory
+    install-perl-prereqs-deep path/to/directory
 
 Via a script:
 
@@ -55,9 +55,9 @@ identifying loaded modules. Therefore, modules that are loaded
 dynamically (e.g., C<eval "require $class">) will not be identified
 as dependencies or installed.
 
-Command-line usage is possible with C<cpanm-missing> and
-C<cpanm-missing-deep>, scripts that are installed along with this
-module.
+Command-line usage is possible with C<install-perl-prereqs> and
+C<install-perl-prereqs-deep>, scripts that are installed along with
+this module.
 
 =cut
 
