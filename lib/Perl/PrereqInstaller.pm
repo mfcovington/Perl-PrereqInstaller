@@ -450,7 +450,7 @@ L<Module::Extract::Use|Module::Extract::Use>
 =head1 SOURCE AVAILABILITY
 
 The source code is on Github:
-L<https://github.com/mfcovington/module-extract-install>
+L<https://github.com/mfcovington/Perl-PrereqInstaller>
 
 =head1 AUTHOR
 
@@ -459,7 +459,7 @@ Michael F. Covington, <mfcovington@gmail.com>
 =head1 BUGS
 
 Please report any bugs or feature requests at
-L<https://github.com/mfcovington/module-extract-install/issues>.
+L<https://github.com/mfcovington/Perl-PrereqInstaller/issues>.
 
 =head1 INSTALLATION
 

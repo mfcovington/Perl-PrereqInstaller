@@ -145,7 +145,7 @@ Command-line usage is possible with `install-perl-prereqs`
 # SOURCE AVAILABILITY
 
 The source code is on Github:
-[https://github.com/mfcovington/module-extract-install](https://github.com/mfcovington/module-extract-install)
+[https://github.com/mfcovington/Perl-PrereqInstaller](https://github.com/mfcovington/Perl-PrereqInstaller)
 
 # AUTHOR
 
@@ -154,7 +154,7 @@ Michael F. Covington, <mfcovington@gmail.com>
 # BUGS
 
 Please report any bugs or feature requests at
-[https://github.com/mfcovington/module-extract-install/issues](https://github.com/mfcovington/module-extract-install/issues).
+[https://github.com/mfcovington/Perl-PrereqInstaller/issues](https://github.com/mfcovington/Perl-PrereqInstaller/issues).
 
 # INSTALLATION
 
