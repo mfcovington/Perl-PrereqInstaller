@@ -64,9 +64,10 @@ Command-line usage is possible with `install-perl-prereqs`
 
 - scan( FILES and/or DIRECTORIES )
 
-    Analyzes specified FILES and files within specified DIRECTORIES to
-    generate a list of modules explicitly loaded and identify which are
-    not currently installed. Subsequent use of `scan()` will update the
+    Analyzes all specified FILES (regardless of file type) and Perl files
+    (.pl/.pm/.cgi/.psgi/.t) within specified DIRECTORIES to generate a
+    list of modules explicitly loaded and identify which are not
+    currently installed. Subsequent use of `scan()` will update the
     lists of modules that are not installed (or already installed).
 
 - cpanm

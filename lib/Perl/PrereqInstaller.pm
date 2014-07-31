@@ -105,16 +105,17 @@ sub new {
 
 =item scan( FILES and/or DIRECTORIES )
 
-Analyzes specified FILES and files within specified DIRECTORIES to
-generate a list of modules explicitly loaded and identify which are
-not currently installed. Subsequent use of C<scan()> will update the
+Analyzes all specified FILES (regardless of file type) and Perl files
+(.pl/.pm/.cgi/.psgi/.t) within specified DIRECTORIES to generate a
+list of modules explicitly loaded and identify which are not
+currently installed. Subsequent use of C<scan()> will update the
 lists of modules that are not installed (or already installed).
 
 =cut
 
 sub scan {
     my ( $self, @path_list ) = @_;
-    my $pattern = qr/^.+\.p[lm]$/i;
+    my $pattern = qr/^.+\.(?:pl|pm|cgi|psgi|t)$/i;
 
     unless ( $self->quiet ) {
         print "\n";
