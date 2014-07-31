@@ -213,6 +213,64 @@ Write (to STDOUT) a summary of scan/install results.
 
 =cut
 
+sub report {
+    my ( $self, $custom_contents ) = @_;
+
+    my %summary_contents = (
+        'not_installed'        => 1,
+        'previously_installed' => 1,
+        'newly_installed'      => 1,
+        'failed_install'       => 1,
+        'scan_errors'          => 1,
+        'scan_warnings'        => 0,
+    );
+
+    $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
+
+    if ( $summary_contents{'scan_errors'} == 1 ) {
+        my @scan_errors = $self->scan_errors;
+
+        if ( scalar @scan_errors > 0 ) {
+            print "File parsing errors:\n";
+            print "  $_\n" for @scan_errors;
+            print "\n";
+        }
+    }
+
+    if ( $summary_contents{'not_installed'} == 1 ) {
+        my @not_installed = $self->not_installed;
+
+        if ( scalar @not_installed > 0 ) {
+            print "Modules to install:\n";
+            print "  $_\n" for @not_installed;
+            print "\n";
+        }
+        else {
+            print "No missing modules need to be installed!\n";
+        }
+    }
+
+    if ( $summary_contents{'newly_installed'} == 1 ) {
+        my @newly_installed = $self->newly_installed;
+
+        if ( scalar @newly_installed > 0 ) {
+            print "Successfully installed:\n";
+            print "  $_\n" for @newly_installed;
+            print "\n";
+        }
+    }
+
+    if ( $summary_contents{'failed_install'} == 1 ) {
+        my @failed_install = $self->failed_install;
+
+        if ( scalar @failed_install > 0 ) {
+            print "Failed to install:\n";
+            print "  $_\n" for @failed_install;
+            print "\n";
+        }
+    }
+}
+
 =back
 
 =head2 Methods for accessing scan/install status
