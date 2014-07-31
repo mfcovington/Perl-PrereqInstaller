@@ -126,7 +126,7 @@ sub scan {
         if ( -f $path ) {
             $path = abs_path($path);
             print "  $path\n" unless $self->quiet;
-            $self->_check_modules("$path");
+            $self->_scan_file("$path");
         }
         elsif ( -d $path ) {
             find(
@@ -135,7 +135,7 @@ sub scan {
                     my $cwd  = getcwd;
                     my $file_path = "$cwd/$_";
                     print "  $file_path\n" unless $self->quiet;
-                    $self->_check_modules("$file_path");
+                    $self->_scan_file("$file_path");
                 },
                 $path
             );
@@ -148,37 +148,92 @@ sub scan {
     print "\n" unless $self->quiet;
 }
 
-sub _check_modules {
+sub _scan_file {
     my ( $self, @file_list ) = @_;
 
     my $scanner = Perl::PrereqScanner->new;
 
     for my $file (@file_list) {
         next unless -e $file;
-        next if -s $file >= 1048576;
+
+        if ( -s $file >= 1048576 ) {
+            $self->_scan_code($file);
+            next;
+        }
 
         my $prereqs;
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
         eval { $prereqs = $scanner->scan_file($file) };
+        $CATCH_WARNING = 0;
         if ($@) {
             push @{ $self->{_scan_errors} }, $file;
             next;
         }
+
         my @module_list = keys %{ $$prereqs{'requirements'} };
+        $self->_check_installed( $file, @module_list );
+    }
+}
 
-        for my $module (@module_list) {
-            next if exists $self->{_banned}{$module};
+sub _scan_code {
 
-            my $CATCH_WARNING = 1;
-            $SIG{'__WARN__'}
-                = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
-            eval "require $module;";
-            $CATCH_WARNING = 0;
-            if ($@) {
-                $self->{_not_installed}{$module}++;
-            }
-            else {
-                $self->{_previously_installed}{$module}++;
-            }
+    # Scan code in chunks half the size of PPI:Tokenizer's limit
+    # This 1 MB limit should be removed in PPI's next update
+    # https://github.com/adamkennedy/PPI/pull/52
+    # https://github.com/adamkennedy/PPI/blob/master/Changes
+
+    my ( $self, $file ) = @_;
+
+    my $scanner = Perl::PrereqScanner->new;
+    my $prereqs;
+    my %modules;
+    my $string = '';
+    open my $perl_fh, "<", $file;
+    while ( my $line = <$perl_fh> ) {
+        $string .= $line;
+        my $byte_size;
+        {
+            use bytes;
+            $byte_size = length $string;
+        }
+        next unless $byte_size > 524_288 || eof($perl_fh);
+
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
+        eval { $prereqs = $scanner->scan_string($string) };
+        $CATCH_WARNING = 0;
+        if ($@) {
+            push @{ $self->{_scan_errors} }, $file;
+            next;
+        }
+        $modules{$_} = 1 for keys %{ $$prereqs{'requirements'} };
+        $string = '';
+    }
+    close $perl_fh;
+
+    my @module_list = keys %modules;
+    $self->_check_installed( $file, @module_list );
+}
+
+sub _check_installed {
+    my ( $self, $file, @module_list ) = @_;
+
+    for my $module (@module_list) {
+        next if exists $self->{_banned}{$module};
+
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
+        eval "require $module;";
+        $CATCH_WARNING = 0;
+        if ($@) {
+            $self->{_not_installed}{$module}++;
+        }
+        else {
+            $self->{_previously_installed}{$module}++;
         }
     }
 }
