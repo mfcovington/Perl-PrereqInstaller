@@ -39,36 +39,30 @@ die $usage if scalar @paths == 0;
 my $installer = Perl::PrereqInstaller->new;
 $installer->scan(@paths);
 
-my @scan_errors = $installer->scan_errors;
+$installer->report(
+    {   'not_installed'        => 1,
+        'previously_installed' => 1,
+        'newly_installed'      => 0,
+        'failed_install'       => 0,
+        'scan_errors'          => 1,
+        'scan_warnings'        => 0,
+    }
+);
 
-if ( scalar @scan_errors > 0 ) {
-    print "File parsing errors:\n";
-    print "  $_\n" for @scan_errors;
-}
+exit if $dry_run;
 
-my @missing = $installer->not_installed;
+$installer->cpanm;
 
-if ( scalar @missing > 0 ) {
-    print "\n";
-    print "Modules to install:\n";
-    print "  $_\n" for @missing;
-    print "\n";
+print "\n";
 
-    exit if $dry_run;
-
-    $installer->cpanm;
-    print "\n";
-
-    print "Successfully installed:\n";
-    print "  $_\n" for $installer->newly_installed;
-    print "\n";
-
-    print "Failed to install:\n";
-    print "  $_\n" for $installer->failed_install;
-    print "\n";
-}
-else {
-    print "No missing modules need to be installed!\n";
-}
+$installer->report(
+    {   'not_installed'        => 0,
+        'previously_installed' => 0,
+        'newly_installed'      => 1,
+        'failed_install'       => 1,
+        'scan_errors'          => 0,
+        'scan_warnings'        => 0,
+    }
+);
 
 exit;
