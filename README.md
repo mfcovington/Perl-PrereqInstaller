@@ -11,26 +11,28 @@ Version 0.5.0
 
 # SYNOPSIS
 
-Via command line:
+Scan, Install, and report results via command line:
 
     install-perl-prereqs lib/ bin/
 
-Via a script:
+Scan, Install, and report results via script:
 
     use Perl::PrereqInstaller;
-
     my $installer = Perl::PrereqInstaller->new;
     $installer->scan( @files, @directories );
-
-    my @scan_errors = $installer->scan_errors;
-
-    my @uninstalled = $installer->not_installed;
-    my @installed   = $installer->previously_installed;
-
     $installer->cpanm;
+    $installer->report;
+
+Access scan/install status via script:
+
+    my @not_installed  = $installer->not_installed;
+    my @prev_installed = $installer->previously_installed;
 
     my @newly_installed = $installer->newly_installed;
     my @failed_install  = $installer->failed_install;
+
+    my @scan_errors   = $installer->scan_errors;
+    my %scan_warnings = $installer->scan_warnings;
 
 # DESCRIPTION
 
@@ -43,8 +45,17 @@ modules. Therefore, modules that are loaded dynamically (e.g.,
 `eval "require $class"`) will not be identified as dependencies or
 installed.
 
-Command-line usage is possible with `install-perl-prereqs`, a tool
-that is co-installed with this module.
+## Command-line tool
+
+Command-line usage is possible with `install-perl-prereqs`
+(co-installed with this module).
+
+    install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
+        -h, --help
+        -d, --dry-run
+        -v, --version
+
+## Methods for scanning, installing, and reporting results
 
 - new
 
@@ -60,6 +71,12 @@ that is co-installed with this module.
 - cpanm
 
     Use cpanm to install loaded modules that are not currently installed.
+
+- report
+
+    Write (to STDOUT) a summary of scan/install results.
+
+## Methods for accessing scan/install status
 
 - not\_installed
 

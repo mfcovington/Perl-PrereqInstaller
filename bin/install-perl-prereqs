@@ -23,7 +23,7 @@ if ( defined $version ) {
 }
 
 my $usage = <<EOF;
-usage: $script_name PERL_FILE_OR_DIR_1 [PERL-PERL_FILE_OR_DIR_2 ...]
+usage: $script_name FILE_OR_DIR [FILE_OR_DIR ...]
     -h, --help
     -d, --dry-run
     -v, --version
