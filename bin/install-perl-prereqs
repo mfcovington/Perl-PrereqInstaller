@@ -55,8 +55,8 @@ $installer->report(
 exit if $dry_run;
 
 $installer->cpanm;
-
-print "\n";
+my @results = ( $installer->newly_installed, $installer->failed_install );
+print "\n" if scalar @results;
 
 $installer->report(
     {   'not_installed'        => 0,

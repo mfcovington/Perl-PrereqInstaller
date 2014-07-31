@@ -236,47 +236,32 @@ sub report {
 
     $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
 
-    if ( $summary_contents{'scan_errors'} == 1 && !$self->quiet ) {
-        my @scan_errors = $self->scan_errors;
+    _summarize( 'File parsing errors', '', $self->scan_errors )
+        if $summary_contents{'scan_errors'} == 1 && !$self->quiet;
 
-        if ( scalar @scan_errors > 0 ) {
-            print "File parsing errors:\n";
-            print "  $_\n" for @scan_errors;
-            print "\n";
-        }
+    _summarize(
+        'Modules to install',
+        'No missing modules need to be installed!',
+        $self->not_installed
+    ) if $summary_contents{'not_installed'} == 1 && !$self->quiet;
+
+    _summarize( 'Successfully installed', '', $self->newly_installed )
+        if $summary_contents{'newly_installed'} == 1;
+
+    _summarize( 'Failed to install', '', $self->failed_install )
+        if $summary_contents{'failed_install'} == 1;
+}
+
+sub _summarize {
+    my ( $title, $alt_message, @items ) = @_;
+
+    if ( scalar @items > 0 ) {
+        print "$title:\n";
+        print "  $_\n" for @items;
+        print "\n";
     }
-
-    if ( $summary_contents{'not_installed'} == 1 && !$self->quiet ) {
-        my @not_installed = $self->not_installed;
-
-        if ( scalar @not_installed > 0 ) {
-            print "Modules to install:\n";
-            print "  $_\n" for @not_installed;
-            print "\n";
-        }
-        else {
-            print "No missing modules need to be installed!\n";
-        }
-    }
-
-    if ( $summary_contents{'newly_installed'} == 1 ) {
-        my @newly_installed = $self->newly_installed;
-
-        if ( scalar @newly_installed > 0 ) {
-            print "Successfully installed:\n";
-            print "  $_\n" for @newly_installed;
-            print "\n";
-        }
-    }
-
-    if ( $summary_contents{'failed_install'} == 1 ) {
-        my @failed_install = $self->failed_install;
-
-        if ( scalar @failed_install > 0 ) {
-            print "Failed to install:\n";
-            print "  $_\n" for @failed_install;
-            print "\n";
-        }
+    elsif ($alt_message) {
+        print "$alt_message\n\n";
     }
 }
 
