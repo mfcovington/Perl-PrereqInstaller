@@ -15,15 +15,16 @@ Scan, Install, and report results via command line:
 
     install-perl-prereqs lib/ bin/
 
-Scan, Install, and report results via script:
+Scan files and Install modules via script:
 
     use Perl::PrereqInstaller;
     my $installer = Perl::PrereqInstaller->new;
     $installer->scan( @files, @directories );
     $installer->cpanm;
-    $installer->report;
 
-Access scan/install status via script:
+    $installer->quiet(1);
+
+Access and report scan/install status via script:
 
     my @not_installed  = $installer->not_installed;
     my @prev_installed = $installer->previously_installed;
@@ -33,6 +34,8 @@ Access scan/install status via script:
 
     my @scan_errors   = $installer->scan_errors;
     my %scan_warnings = $installer->scan_warnings;
+
+    $installer->report;
 
 # DESCRIPTION
 
@@ -56,7 +59,7 @@ Command-line usage is possible with `install-perl-prereqs`
         -q, --quiet
         -v, --version
 
-## Methods for scanning, installing, and reporting results
+## Methods for scanning files and installing modules
 
 - new
 
@@ -74,17 +77,13 @@ Command-line usage is possible with `install-perl-prereqs`
 
     Use cpanm to install loaded modules that are not currently installed.
 
-- report
-
-    Write (to STDOUT) a summary of scan/install results.
-
 - quiet( BOOLEAN )
 
     Set quiet mode to on/off (default: off). Quiet mode turns off most
     of the output. If BOOLEAN is not provided, this method returns quiet
     mode's current state.
 
-## Methods for accessing scan/install status
+## Methods for accessing and reporting scan/install status
 
 - not\_installed
 
@@ -120,6 +119,22 @@ Command-line usage is possible with `install-perl-prereqs`
     raised warnings (the array contents) during parsing. These warnings
     are likely indicative of issues with the code in the parsed files
     rather than actual parsing problems.
+
+- report
+
+    Write (to STDOUT) a summary of scan/install results. By default, all
+    status methods below (except `scan_warnings`) are summarized. To
+    customize the contents of `report()`, pass it an anonymous hash:
+
+        $installer->report(
+            {   'not_installed'        => 0,
+                'previously_installed' => 0,
+                'newly_installed'      => 1,
+                'failed_install'       => 1,
+                'scan_errors'          => 0,
+                'scan_warnings'        => 0,
+            }
+        );
 
 # SEE ALSO
 

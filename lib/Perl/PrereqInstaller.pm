@@ -25,15 +25,16 @@ Scan, Install, and report results via command line:
 
     install-perl-prereqs lib/ bin/
 
-Scan, Install, and report results via script:
+Scan files and Install modules via script:
 
     use Perl::PrereqInstaller;
     my $installer = Perl::PrereqInstaller->new;
     $installer->scan( @files, @directories );
     $installer->cpanm;
-    $installer->report;
 
-Access scan/install status via script:
+    $installer->quiet(1);
+
+Access and report scan/install status via script:
 
     my @not_installed  = $installer->not_installed;
     my @prev_installed = $installer->previously_installed;
@@ -43,6 +44,8 @@ Access scan/install status via script:
 
     my @scan_errors   = $installer->scan_errors;
     my %scan_warnings = $installer->scan_warnings;
+
+    $installer->report;
 
 =head1 DESCRIPTION
 
@@ -66,7 +69,7 @@ Command-line usage is possible with C<install-perl-prereqs>
         -q, --quiet
         -v, --version
 
-=head2 Methods for scanning, installing, and reporting results
+=head2 Methods for scanning files and installing modules
 
 =over 4
 
@@ -273,55 +276,6 @@ sub cpanm {
     }
 }
 
-=item report
-
-Write (to STDOUT) a summary of scan/install results.
-
-=cut
-
-sub report {
-    my ( $self, $custom_contents ) = @_;
-
-    my %summary_contents = (
-        'not_installed'        => 1,
-        'previously_installed' => 1,
-        'newly_installed'      => 1,
-        'failed_install'       => 1,
-        'scan_errors'          => 1,
-        'scan_warnings'        => 0,
-    );
-
-    $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
-
-    _summarize( 'File parsing errors', '', $self->scan_errors )
-        if $summary_contents{'scan_errors'} == 1 && !$self->quiet;
-
-    _summarize(
-        'Modules to install',
-        'No missing modules need to be installed!',
-        $self->not_installed
-    ) if $summary_contents{'not_installed'} == 1 && !$self->quiet;
-
-    _summarize( 'Successfully installed', '', $self->newly_installed )
-        if $summary_contents{'newly_installed'} == 1;
-
-    _summarize( 'Failed to install', '', $self->failed_install )
-        if $summary_contents{'failed_install'} == 1;
-}
-
-sub _summarize {
-    my ( $title, $alt_message, @items ) = @_;
-
-    if ( scalar @items > 0 ) {
-        print "$title:\n";
-        print "  $_\n" for @items;
-        print "\n";
-    }
-    elsif ($alt_message) {
-        print "$alt_message\n\n";
-    }
-}
-
 =item quiet( BOOLEAN )
 
 Set quiet mode to on/off (default: off). Quiet mode turns off most
@@ -343,7 +297,7 @@ sub quiet {
 
 =back
 
-=head2 Methods for accessing scan/install status
+=head2 Methods for accessing and reporting scan/install status
 
 =over 4
 
@@ -422,6 +376,67 @@ rather than actual parsing problems.
 sub scan_warnings {
     my $self = shift;
     return %{ $self->{_scan_warnings} };
+}
+
+=item report
+
+Write (to STDOUT) a summary of scan/install results. By default, all
+status methods below (except C<scan_warnings>) are summarized. To
+customize the contents of C<report()>, pass it an anonymous hash:
+
+    $installer->report(
+        {   'not_installed'        => 0,
+            'previously_installed' => 0,
+            'newly_installed'      => 1,
+            'failed_install'       => 1,
+            'scan_errors'          => 0,
+            'scan_warnings'        => 0,
+        }
+    );
+
+=cut
+
+sub report {
+    my ( $self, $custom_contents ) = @_;
+
+    my %summary_contents = (
+        'not_installed'        => 1,
+        'previously_installed' => 1,
+        'newly_installed'      => 1,
+        'failed_install'       => 1,
+        'scan_errors'          => 1,
+        'scan_warnings'        => 0,
+    );
+
+    $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
+
+    _summarize( 'File parsing errors', '', $self->scan_errors )
+        if $summary_contents{'scan_errors'} == 1 && !$self->quiet;
+
+    _summarize(
+        'Modules to install',
+        'No missing modules need to be installed!',
+        $self->not_installed
+    ) if $summary_contents{'not_installed'} == 1 && !$self->quiet;
+
+    _summarize( 'Successfully installed', '', $self->newly_installed )
+        if $summary_contents{'newly_installed'} == 1;
+
+    _summarize( 'Failed to install', '', $self->failed_install )
+        if $summary_contents{'failed_install'} == 1;
+}
+
+sub _summarize {
+    my ( $title, $alt_message, @items ) = @_;
+
+    if ( scalar @items > 0 ) {
+        print "$title:\n";
+        print "  $_\n" for @items;
+        print "\n";
+    }
+    elsif ($alt_message) {
+        print "$alt_message\n\n";
+    }
 }
 
 =back
