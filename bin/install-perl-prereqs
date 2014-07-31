@@ -13,7 +13,7 @@ my $options = GetOptions(
     "version" => \$version,
 );
 
-my @files = @ARGV;
+my @paths = @ARGV;
 
 my $script_path = $0;
 my $script_name = fileparse $script_path;
@@ -23,17 +23,17 @@ if ( defined $version ) {
 }
 
 my $usage = <<EOF;
-usage: $script_name PERL-FILE1 [PERL-FILE2 ...]
+usage: $script_name PERL_FILE_OR_DIR_1 [PERL-PERL_FILE_OR_DIR_2 ...]
     -h, --help
     -d, --dry-run
     -v, --version
 EOF
 
 die $usage if defined $help;
-die $usage if scalar @files == 0;
+die $usage if scalar @paths == 0;
 
 my $installer = Perl::PrereqInstaller->new;
-$installer->check_modules(@files);
+$installer->scan(@paths);
 
 my @scan_errors = $installer->scan_errors;
 

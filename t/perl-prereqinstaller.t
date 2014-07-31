@@ -13,7 +13,7 @@ require A::Non::Existent::Perl::Module if 0;
 
 my $installer = Perl::PrereqInstaller->new;
 
-$installer->check_modules($0);
+$installer->scan($0);
 $installer->{_not_installed}{'--version'} = 1;
 
 my @not_installed = $installer->not_installed;
@@ -47,13 +47,13 @@ is_deeply(
     'Report which modules still need to be installed'
 );
 
-$installer->check_modules('t/bad/scan-error.pl');
+$installer->scan('t/bad/scan-error.pl');
 my @scan_errors = $installer->scan_errors;
 is_deeply( \@scan_errors, ['t/bad/scan-error.pl'],
     'Report files with scan errors' );
 
 my $deep_installer = Perl::PrereqInstaller->new;
-$deep_installer->check_modules_deep("t/deep");
+$deep_installer->scan("t/deep");
 my @not_installed_deep = $deep_installer->not_installed;
 my @installed_deep     = $deep_installer->previously_installed;
 

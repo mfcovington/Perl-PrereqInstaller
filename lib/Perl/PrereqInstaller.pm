@@ -23,17 +23,14 @@ our $VERSION = '0.5.0';
 
 Via command line:
 
-    install-perl-prereqs file.pl
-
-    install-perl-prereqs-deep path/to/directory
+    install-perl-prereqs lib/ bin/
 
 Via a script:
 
     use Perl::PrereqInstaller;
 
     my $installer = Perl::PrereqInstaller->new;
-    $installer->check_modules(@files);
-    $installer->check_modules_deep($directory);
+    $installer->scan( @files, @directories );
 
     my @scan_errors = $installer->scan_errors;
 
@@ -47,17 +44,17 @@ Via a script:
 
 =head1 DESCRIPTION
 
-Extract the names of the modules explicitly loaded in a Perl script or
-module and install them if they are not already installed. Since this
-module relies on L<Perl::PrereqScanner|Perl::PrereqScanner> to
-statically identify dependencies, it has the same caveats regarding
-identifying loaded modules. Therefore, modules that are loaded
-dynamically (e.g., C<eval "require $class">) will not be identified
-as dependencies or installed.
+Extract the names of the modules explicitly loaded in Perl scripts and
+modules, check which modules are not installed, and install the
+missing modules. Since this module relies on
+L<Perl::PrereqScanner|Perl::PrereqScanner> to statically identify
+dependencies, it has the same caveats regarding identifying loaded
+modules. Therefore, modules that are loaded dynamically (e.g.,
+C<eval "require $class">) will not be identified as dependencies or
+installed.
 
-Command-line usage is possible with C<install-perl-prereqs> and
-C<install-perl-prereqs-deep>, scripts that are installed along with
-this module.
+Command-line usage is possible with C<install-perl-prereqs>, a tool
+that is co-installed with this module.
 
 =cut
 
@@ -95,16 +92,45 @@ sub new {
     return $self;
 }
 
-=item check_modules( FILES )
+=item scan( FILES and/or DIRECTORIES )
 
-Analyzes FILES to generate a list of modules explicitly loaded in
-FILES and identifies which are not currently installed. Subsequent
-calls of this method will continue adding to the lists of modules
-that are not installed (or already installed).
+Analyzes specified FILES and files within specified DIRECTORIES to
+generate a list of modules explicitly loaded and identify which are
+not currently installed. Subsequent use of C<scan()> will update the
+lists of modules that are not installed (or already installed).
 
 =cut
 
-sub check_modules {
+sub scan {
+    my ( $self, @path_list ) = @_;
+    my $pattern = qr/^.+\.p[lm]$/i;
+
+    print "\n";
+    print "Files scanned:\n";
+
+    for my $path (@path_list) {
+        if ( -f $path ) {
+            print "  $path\n";
+            $self->_check_modules("$path");
+        }
+        elsif ( -d $path ) {
+            find(
+                sub {
+                    return unless /$pattern/;
+                    my $cwd  = getcwd;
+                    my $file_path = "$cwd/$_";
+                    print "  $file_path\n";
+                    $self->_check_modules("$file_path");
+                },
+                $path
+            );
+        }
+        else { print "Something is wrong.\n"; }
+    }
+    print "\n";
+}
+
+sub _check_modules {
     my ( $self, @file_list ) = @_;
 
     my $scanner = Perl::PrereqScanner->new;
@@ -147,36 +173,6 @@ sub _catch_warning {
         push @{ $self->{_scan_warnings}{$file} }, $warning;
     }
     else { warn $warning }
-}
-
-=item check_modules_deep( DIRECTORY, PATTERN )
-
-Traverses a DIRECTORY and runs C<check_modules()> on files that match
-PATTERN, a case-insensitive regular expression. If omitted, PATTERN
-defaults to C<^.+\.p[lm]$> and matches files ending in C<.pl> or
-C<.pm>. Subsequent calls of this method will continue adding to the
-lists of modules that are not installed (or already installed).
-
-=cut
-
-sub check_modules_deep {
-    my ( $self, $directory, $pattern ) = @_;
-
-    $pattern = defined $pattern ? qr/$pattern/i : qr/^.+\.p[lm]$/i;
-
-    print "\n";
-    print "Files found:\n";
-    find(
-        sub {
-            return unless /$pattern/;
-            my $cwd       = getcwd;
-            my $file_path = "$cwd/$_";
-            print "  $file_path\n";
-            $self->check_modules("$file_path");
-        },
-        $directory
-    );
-    print "\n";
 }
 
 =item cpanm

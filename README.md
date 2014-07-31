@@ -13,17 +13,14 @@ Version 0.5.0
 
 Via command line:
 
-    install-perl-prereqs file.pl
-
-    install-perl-prereqs-deep path/to/directory
+    install-perl-prereqs lib/ bin/
 
 Via a script:
 
     use Perl::PrereqInstaller;
 
     my $installer = Perl::PrereqInstaller->new;
-    $installer->check_modules(@files);
-    $installer->check_modules_deep($directory);
+    $installer->scan( @files, @directories );
 
     my @scan_errors = $installer->scan_errors;
 
@@ -37,35 +34,27 @@ Via a script:
 
 # DESCRIPTION
 
-Extract the names of the modules explicitly loaded in a Perl script or
-module and install them if they are not already installed. Since this
-module relies on [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner) to
-statically identify dependencies, it has the same caveats regarding
-identifying loaded modules. Therefore, modules that are loaded
-dynamically (e.g., `eval "require $class"`) will not be identified
-as dependencies or installed.
+Extract the names of the modules explicitly loaded in Perl scripts and
+modules, check which modules are not installed, and install the
+missing modules. Since this module relies on
+[Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner) to statically identify
+dependencies, it has the same caveats regarding identifying loaded
+modules. Therefore, modules that are loaded dynamically (e.g.,
+`eval "require $class"`) will not be identified as dependencies or
+installed.
 
-Command-line usage is possible with `install-perl-prereqs` and
-`install-perl-prereqs-deep`, scripts that are installed along with
-this module.
+Command-line usage is possible with `install-perl-prereqs`, a tool
+that is co-installed with this module.
 
 - new
 
     Initializes a new Perl::PrereqInstaller object.
 
-- check\_modules( FILES )
+- scan( FILES and/or DIRECTORIES )
 
-    Analyzes FILES to generate a list of modules explicitly loaded in
-    FILES and identifies which are not currently installed. Subsequent
-    calls of this method will continue adding to the lists of modules
-    that are not installed (or already installed).
-
-- check\_modules\_deep( DIRECTORY, PATTERN )
-
-    Traverses a DIRECTORY and runs `check_modules()` on files that match
-    PATTERN, a case-insensitive regular expression. If omitted, PATTERN
-    defaults to `^.+\.p[lm]$` and matches files ending in `.pl` or
-    `.pm`. Subsequent calls of this method will continue adding to the
+    Analyzes specified FILES and files within specified DIRECTORIES to
+    generate a list of modules explicitly loaded and identify which are
+    not currently installed. Subsequent use of `scan()` will update the
     lists of modules that are not installed (or already installed).
 
 - cpanm
