@@ -299,7 +299,11 @@ L<https://github.com/mfcovington/module-extract-install/issues>.
 
 =head1 INSTALLATION
 
-To install this module, run the following commands:
+To install this module from GitHub using cpanm:
+
+    cpanm git@github.com:mfcovington/Perl-PrereqInstaller.git
+
+Alternatively, download and run the following commands:
 
     perl Build.PL
     ./Build
