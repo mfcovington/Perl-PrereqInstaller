@@ -63,6 +63,7 @@ Command-line usage is possible with C<install-perl-prereqs>
     install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
         -h, --help
         -d, --dry-run
+        -q, --quiet
         -v, --version
 
 =head2 Methods for scanning, installing, and reporting results
@@ -95,6 +96,7 @@ sub new {
             'vars'     => 1,
             'warnings' => 1,
         },
+        _quiet => 0,
     };
     bless $self, $class;
 
@@ -114,12 +116,14 @@ sub scan {
     my ( $self, @path_list ) = @_;
     my $pattern = qr/^.+\.p[lm]$/i;
 
-    print "\n";
-    print "Files scanned:\n";
+    unless ( $self->quiet ) {
+        print "\n";
+        print "Files scanned:\n";
+    }
 
     for my $path (@path_list) {
         if ( -f $path ) {
-            print "  $path\n";
+            print "  $path\n" unless $self->quiet;
             $self->_check_modules("$path");
         }
         elsif ( -d $path ) {
@@ -128,15 +132,18 @@ sub scan {
                     return unless /$pattern/;
                     my $cwd  = getcwd;
                     my $file_path = "$cwd/$_";
-                    print "  $file_path\n";
+                    print "  $file_path\n" unless $self->quiet;
                     $self->_check_modules("$file_path");
                 },
                 $path
             );
         }
-        else { print "Something is wrong.\n"; }
+        else {
+            print "Neither file nor directory: $path\n"
+                unless $self->quiet;
+        }
     }
-    print "\n";
+    print "\n" unless $self->quiet;
 }
 
 sub _check_modules {
@@ -195,7 +202,9 @@ sub cpanm {
 
     my @modules = sort keys %{ $self->{_not_installed} };
     for (@modules) {
-        my $exit_status = system("cpanm $_");
+        my $cpanm_cmd = "cpanm";
+        $cpanm_cmd .= " -q" if $self->quiet;
+        my $exit_status = system("$cpanm_cmd $_");
         if ($exit_status) {
             $self->{_failed_install}{$_}++;
         }
@@ -227,7 +236,7 @@ sub report {
 
     $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
 
-    if ( $summary_contents{'scan_errors'} == 1 ) {
+    if ( $summary_contents{'scan_errors'} == 1 && !$self->quiet ) {
         my @scan_errors = $self->scan_errors;
 
         if ( scalar @scan_errors > 0 ) {
@@ -237,7 +246,7 @@ sub report {
         }
     }
 
-    if ( $summary_contents{'not_installed'} == 1 ) {
+    if ( $summary_contents{'not_installed'} == 1 && !$self->quiet ) {
         my @not_installed = $self->not_installed;
 
         if ( scalar @not_installed > 0 ) {
@@ -268,6 +277,25 @@ sub report {
             print "  $_\n" for @failed_install;
             print "\n";
         }
+    }
+}
+
+=item quiet( BOOLEAN )
+
+Set quiet mode to on/off (default: off). Quiet mode turns off most
+of the output. If BOOLEAN is not provided, this method returns quiet
+mode's current state.
+
+=cut
+
+sub quiet {
+    my ( $self, $boolean ) = @_;
+
+    if ( defined $boolean ) {
+        $self->{_quiet} = $boolean;
+    }
+    else {
+        return $self->{_quiet};
     }
 }
 

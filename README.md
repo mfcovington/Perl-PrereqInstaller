@@ -53,6 +53,7 @@ Command-line usage is possible with `install-perl-prereqs`
     install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
         -h, --help
         -d, --dry-run
+        -q, --quiet
         -v, --version
 
 ## Methods for scanning, installing, and reporting results
@@ -75,6 +76,12 @@ Command-line usage is possible with `install-perl-prereqs`
 - report
 
     Write (to STDOUT) a summary of scan/install results.
+
+- quiet( BOOLEAN )
+
+    Set quiet mode to on/off (default: off). Quiet mode turns off most
+    of the output. If BOOLEAN is not provided, this method returns quiet
+    mode's current state.
 
 ## Methods for accessing scan/install status
 
