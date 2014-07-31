@@ -2,6 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
+use Cwd 'abs_path';
 use Test::More tests => 9;
 
 BEGIN {
@@ -27,8 +28,11 @@ my @failed_install      = $installer->failed_install;
 my @still_not_installed = $installer->not_installed;
 
 isa_ok( $installer, 'Perl::PrereqInstaller' );
-is_deeply( \@installed, ['Test::More'],
-    'Find modules that are already installed' );
+is_deeply(
+    \@installed,
+    [ 'Cwd', 'Test::More' ],
+    'Find modules that are already installed'
+);
 is_deeply(
     \@not_installed,
     [ '--version', 'A::Non::Existent::Perl::Module' ],
@@ -47,10 +51,11 @@ is_deeply(
     'Report which modules still need to be installed'
 );
 
-$installer->scan('t/bad/scan-error.pl');
+my $bad_file = 't/bad/scan-error.pl';
+my $abs_path = abs_path($bad_file);
+$installer->scan($bad_file);
 my @scan_errors = $installer->scan_errors;
-is_deeply( \@scan_errors, ['t/bad/scan-error.pl'],
-    'Report files with scan errors' );
+is_deeply( \@scan_errors, [$abs_path], 'Report files with scan errors' );
 
 my $deep_installer = Perl::PrereqInstaller->new;
 $deep_installer->scan("t/deep");

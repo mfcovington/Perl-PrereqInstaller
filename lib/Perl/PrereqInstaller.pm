@@ -2,7 +2,7 @@ package Perl::PrereqInstaller;
 use strict;
 use warnings;
 use Carp;
-use Cwd;
+use Cwd qw(getcwd abs_path);
 use File::Find;
 use Perl::PrereqScanner;
 
@@ -123,6 +123,7 @@ sub scan {
 
     for my $path (@path_list) {
         if ( -f $path ) {
+            $path = abs_path($path);
             print "  $path\n" unless $self->quiet;
             $self->_check_modules("$path");
         }
