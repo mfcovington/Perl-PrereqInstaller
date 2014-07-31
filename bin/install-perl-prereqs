@@ -23,10 +23,14 @@ if ( defined $version ) {
 }
 
 my $usage = <<EOF;
-usage: $script_name FILE_OR_DIR [FILE_OR_DIR ...]
+
+Usage: $script_name FILE_OR_DIR [FILE_OR_DIR ...]
     -h, --help
     -d, --dry-run
     -v, --version
+
+Please report bugs or feature requests: https://github.com/mfcovington/Perl-PrereqInstaller/issues
+
 EOF
 
 die $usage if defined $help;
