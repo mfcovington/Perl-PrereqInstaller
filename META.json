@@ -35,7 +35,8 @@
             "File::Basename" : "0",
             "File::Find" : "0",
             "Getopt::Long" : "0",
-            "Perl::PrereqScanner" : "0"
+            "Perl::PrereqScanner" : "0",
+            "Text::Wrap" : "0"
          }
       }
    },

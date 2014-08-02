@@ -29,6 +29,7 @@ my $builder = Module::Build->new(
         "File::Find"          => 0,
         "Getopt::Long"        => 0,
         "Perl::PrereqScanner" => 0,
+        "Text::Wrap"          => 0,
     },
     build_requires => {
         'Test::More' => 0,

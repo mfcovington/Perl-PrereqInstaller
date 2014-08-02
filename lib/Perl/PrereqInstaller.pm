@@ -5,6 +5,7 @@ use Carp;
 use Cwd qw(getcwd abs_path);
 use File::Find;
 use Perl::PrereqScanner;
+use Text::Wrap;
 
 =head1 NAME
 
@@ -424,6 +425,22 @@ sub report {
 
     _summarize( 'Failed to install', '', $self->failed_install )
         if $summary_contents{'failed_install'} == 1;
+
+    if ( $summary_contents{'scan_warnings'} == 1 && !$self->quiet ) {
+        my %scan_warnings = $self->scan_warnings;
+        my @warned_files  = sort keys %scan_warnings;
+        if ( scalar @warned_files > 0 ) {
+            print "Warnings during scan:\n";
+            for my $file (@warned_files) {
+                print "  $file\n";
+                $Text::Wrap::columns = 78;
+                $Text::Wrap::huge    = 'wrap';
+                print wrap( "  | - ", "  |   ", "$_\n" )
+                    for @{ $scan_warnings{$file} };
+            }
+            print "\n";
+        }
+    }
 }
 
 sub _summarize {
