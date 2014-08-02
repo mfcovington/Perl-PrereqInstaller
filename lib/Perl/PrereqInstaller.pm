@@ -100,7 +100,8 @@ sub new {
             'vars'     => 1,
             'warnings' => 1,
         },
-        _quiet => 0,
+        _quiet     => 0,
+        _filetypes => [ 'pl', 'pm', 'cgi', 'psgi', 't' ],
     };
     bless $self, $class;
 
@@ -119,7 +120,9 @@ lists of modules that are not installed (or already installed).
 
 sub scan {
     my ( $self, @path_list ) = @_;
-    my $pattern = qr/^.+\.(?:pl|pm|cgi|psgi|t)$/i;
+
+    my $filetypes = join "|", @{ $self->{_filetypes} };
+    my $filetypes_regex = qr/^.+\.(?:$filetypes)$/i;
 
     unless ( $self->quiet ) {
         print "\n";
@@ -135,7 +138,7 @@ sub scan {
         elsif ( -d $path ) {
             find(
                 sub {
-                    return unless /$pattern/;
+                    return unless /$filetypes_regex/;
                     my $cwd  = getcwd;
                     my $file_path = "$cwd/$_";
                     print "  $file_path\n" unless $self->quiet;
