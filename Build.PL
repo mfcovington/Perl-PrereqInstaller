@@ -4,7 +4,6 @@ use warnings FATAL => 'all';
 use Module::Build;
 
 # TODO: Add version specifications for requirements
-# TODO: Add perl + version to requirements
 
 my $module_file = "lib/Perl/PrereqInstaller.pm";
 my @scripts = grep { -f and !-d } glob 'bin/*';
@@ -22,6 +21,7 @@ my $builder = Module::Build->new(
     license            => 'perl',
     create_makefile_pl => 0,
     requires => {
+        'perl'                => 5.006,
         "App::cpanminus"      => 0,
         "Carp"                => 0,
         "Cwd"                 => 0,
