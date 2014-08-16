@@ -11,7 +11,7 @@ use Text::Wrap;
 =head1 NAME
 
 Perl::PrereqInstaller - Install missing modules explicitly
-loaded by a Perl script or module
+loaded in Perl files
 
 =head1 VERSION
 
@@ -51,9 +51,9 @@ Access and report scan/install status via script:
 
 =head1 DESCRIPTION
 
-Extract the names of the modules explicitly loaded in Perl scripts and
-modules, check which modules are not installed, and install the
-missing modules. Since this module relies on
+Extract the names of the modules explicitly loaded in Perl files,
+check which modules are not installed, and install the missing
+modules. Since this module relies on
 L<Perl::PrereqScanner|Perl::PrereqScanner> to statically identify
 dependencies, it has the same caveats regarding identifying loaded
 modules. Therefore, modules that are loaded dynamically (e.g.,
@@ -115,7 +115,7 @@ Analyzes all specified FILES (regardless of file type) and Perl files
 (.pl/.pm/.cgi/.psgi/.t) within specified DIRECTORIES to generate a
 list of modules explicitly loaded and identify which are not
 currently installed. Subsequent use of C<scan()> will update the
-lists of modules that are not installed (or already installed).
+lists of not yet installed and previously installed modules.
 
 =cut
 
@@ -470,9 +470,43 @@ sub _summarize {
 
 =head1 SEE ALSO
 
-L<lib::xi|lib::xi>
-L<Perl::PrereqScanner|Perl::PrereqScanner>
+L<Perl::PrereqScanner|Perl::PrereqScanner>,
+L<App::cpanoutdated|App::cpanoutdated>,
+L<lib::xi|lib::xi>,
 L<Module::Extract::Use|Module::Extract::Use>
+
+The command-line tool C<scan-perl-prereqs> gets installed together
+with L<Perl::PrereqScanner|Perl::PrereqScanner>. The basic
+functionality of C<install-perl-prereqs> can be recreated with
+C<scan-perl-prereqs | cpanm>; however, C<install-perl-prereqs> comes
+with a few bonuses, including:
+
+=over 4
+
+=item Better error handling
+
+In the event of parse errors, C<scan-perl-prereqs> dies even if there
+are files remaining to be scanned, whereas C<install-perl-prereqs>
+logs the error and scans the next file.
+
+=item Summary report
+
+C<install-perl-prereqs> provides a summary of scan and install
+results.
+
+=item No unexpected updates
+
+While C<scan-perl-prereqs | cpanm> attempts to update all
+previously-installed modules found in a scan, C<install-perl-prereqs>
+only attempts to install modules if they are not yet installed.
+
+Perhaps a better way to update installed CPAN modules is to use
+L<cpan-outdated|cpan-outdated> (from
+L<App::cpanoutdated|App::cpanoutdated>:
+
+    cpan-outdated -p | cpanm
+
+=back
 
 =head1 SOURCE AVAILABILITY
 

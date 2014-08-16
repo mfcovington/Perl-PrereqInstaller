@@ -3,7 +3,7 @@
 # NAME
 
 Perl::PrereqInstaller - Install missing modules explicitly
-loaded by a Perl script or module
+loaded in Perl files
 
 # VERSION
 
@@ -39,9 +39,9 @@ Access and report scan/install status via script:
 
 # DESCRIPTION
 
-Extract the names of the modules explicitly loaded in Perl scripts and
-modules, check which modules are not installed, and install the
-missing modules. Since this module relies on
+Extract the names of the modules explicitly loaded in Perl files,
+check which modules are not installed, and install the missing
+modules. Since this module relies on
 [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner) to statically identify
 dependencies, it has the same caveats regarding identifying loaded
 modules. Therefore, modules that are loaded dynamically (e.g.,
@@ -71,7 +71,7 @@ Command-line usage is possible with `install-perl-prereqs`
     (.pl/.pm/.cgi/.psgi/.t) within specified DIRECTORIES to generate a
     list of modules explicitly loaded and identify which are not
     currently installed. Subsequent use of `scan()` will update the
-    lists of modules that are not installed (or already installed).
+    lists of not yet installed and previously installed modules.
 
 - cpanm
 
@@ -138,9 +138,39 @@ Command-line usage is possible with `install-perl-prereqs`
 
 # SEE ALSO
 
-[lib::xi](https://metacpan.org/pod/lib::xi)
-[Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner)
+[Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner),
+[App::cpanoutdated](https://metacpan.org/pod/App::cpanoutdated),
+[lib::xi](https://metacpan.org/pod/lib::xi),
 [Module::Extract::Use](https://metacpan.org/pod/Module::Extract::Use)
+
+The command-line tool `scan-perl-prereqs` gets installed together
+with [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner). The basic
+functionality of `install-perl-prereqs` can be recreated with
+`scan-perl-prereqs | cpanm`; however, `install-perl-prereqs` comes
+with a few bonuses, including:
+
+- Better error handling
+
+    In the event of parse errors, `scan-perl-prereqs` dies even if there
+    are files remaining to be scanned, whereas `install-perl-prereqs`
+    logs the error and scans the next file.
+
+- Summary report
+
+    `install-perl-prereqs` provides a summary of scan and install
+    results.
+
+- No unexpected updates
+
+    While `scan-perl-prereqs | cpanm` attempts to update all
+    previously-installed modules found in a scan, `install-perl-prereqs`
+    only attempts to install modules if they are not yet installed.
+
+    Perhaps a better way to update installed CPAN modules is to use
+    [cpan-outdated](https://metacpan.org/pod/cpan-outdated) (from
+    [App::cpanoutdated](https://metacpan.org/pod/App::cpanoutdated):
+
+        cpan-outdated -p | cpanm
 
 # SOURCE AVAILABILITY
 
