@@ -5,15 +5,54 @@ use File::Basename;
 use Perl::PrereqInstaller;
 use Getopt::Long;
 
-my ( $help, $dry_run, $version );
+=head1 NAME
+
+install-perl-prereqs - Install missing modules explicitly
+loaded in Perl files
+
+=head1 VERSION
+
+Version 0.6.0
+
+=head1 SYNOPSIS
+
+    install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
+        -h, --help
+        -d, --dry-run
+        -q, --quiet
+        -v, --version
+
+=head1 AUTHOR
+
+Michael F. Covington, <mfcovington@gmail.com>
+
+=head1 BUGS
+
+Please report any bugs or feature requests at
+L<https://github.com/mfcovington/Perl-PrereqInstaller/issues>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 Michael F. Covington.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the the Artistic License (2.0). You may obtain a
+copy of the full license at:
+
+L<http://www.perlfoundation.org/artistic_license_2_0>
+
+=cut
+
+my ( $help, $dry_run, $quiet, $version );
 
 my $options = GetOptions(
     "help"    => \$help,
     "dry-run" => \$dry_run,
+    "quiet"   => \$quiet,
     "version" => \$version,
 );
 
-my @files = @ARGV;
+my @paths = @ARGV;
 
 my $script_path = $0;
 my $script_name = fileparse $script_path;
@@ -23,48 +62,48 @@ if ( defined $version ) {
 }
 
 my $usage = <<EOF;
-usage: $script_name PERL-FILE1 [PERL-FILE2 ...]
+
+Usage: $script_name FILE_OR_DIR [FILE_OR_DIR ...]
     -h, --help
     -d, --dry-run
+    -q, --quiet
     -v, --version
+
+Please report bugs or feature requests: https://github.com/mfcovington/Perl-PrereqInstaller/issues
+
 EOF
 
 die $usage if defined $help;
-die $usage if scalar @files == 0;
+die $usage if scalar @paths == 0;
 
 my $installer = Perl::PrereqInstaller->new;
-$installer->check_modules(@files);
+$installer->quiet(1) if $quiet;
+$installer->scan(@paths);
 
-my @scan_errors = $installer->scan_errors;
+$installer->report(
+    {   'not_installed'        => 1,
+        'previously_installed' => 1,
+        'newly_installed'      => 0,
+        'failed_install'       => 0,
+        'scan_errors'          => 1,
+        'scan_warnings'        => 0,
+    }
+);
 
-if ( scalar @scan_errors > 0 ) {
-    print "File parsing errors:\n";
-    print "  $_\n" for @scan_errors;
-}
+exit if $dry_run;
 
-my @missing = $installer->not_installed;
+$installer->cpanm;
+my @results = ( $installer->newly_installed, $installer->failed_install );
+print "\n" if scalar @results;
 
-if ( scalar @missing > 0 ) {
-    print "\n";
-    print "Modules to install:\n";
-    print "  $_\n" for @missing;
-    print "\n";
-
-    exit if $dry_run;
-
-    $installer->cpanm;
-    print "\n";
-
-    print "Successfully installed:\n";
-    print "  $_\n" for $installer->newly_installed;
-    print "\n";
-
-    print "Failed to install:\n";
-    print "  $_\n" for $installer->failed_install;
-    print "\n";
-}
-else {
-    print "No missing modules need to be installed!\n";
-}
+$installer->report(
+    {   'not_installed'        => 0,
+        'previously_installed' => 0,
+        'newly_installed'      => 1,
+        'failed_install'       => 1,
+        'scan_errors'          => 0,
+        'scan_warnings'        => 0,
+    }
+);
 
 exit;

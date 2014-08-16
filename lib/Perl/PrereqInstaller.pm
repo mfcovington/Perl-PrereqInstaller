@@ -2,64 +2,76 @@ package Perl::PrereqInstaller;
 use strict;
 use warnings;
 use Carp;
-use Cwd;
+use Cwd qw(getcwd abs_path);
+use File::Basename;
 use File::Find;
 use Perl::PrereqScanner;
+use Text::Wrap;
 
 =head1 NAME
 
 Perl::PrereqInstaller - Install missing modules explicitly
-loaded by a Perl script or module
+loaded in Perl files
 
 =head1 VERSION
 
-Version 0.5.0
+Version 0.6.0
 
 =cut
 
-our $VERSION = '0.5.0';
+our $VERSION = '0.6.0';
 
 =head1 SYNOPSIS
 
-Via command line:
+Scan, Install, and report results via command line:
 
-    cpanm-missing file.pl
+    install-perl-prereqs lib/ bin/
 
-    cpanm-missing-deep path/to/directory
-
-Via a script:
+Scan files and Install modules via script:
 
     use Perl::PrereqInstaller;
-
     my $installer = Perl::PrereqInstaller->new;
-    $installer->check_modules(@files);
-    $installer->check_modules_deep($directory);
-
-    my @scan_errors = $installer->scan_errors;
-
-    my @uninstalled = $installer->not_installed;
-    my @installed   = $installer->previously_installed;
-
+    $installer->scan( @files, @directories );
     $installer->cpanm;
+
+    $installer->quiet(1);
+
+Access and report scan/install status via script:
+
+    my @not_installed  = $installer->not_installed;
+    my @prev_installed = $installer->previously_installed;
 
     my @newly_installed = $installer->newly_installed;
     my @failed_install  = $installer->failed_install;
 
+    my @scan_errors   = $installer->scan_errors;
+    my %scan_warnings = $installer->scan_warnings;
+
+    $installer->report;
+
 =head1 DESCRIPTION
 
-Extract the names of the modules explicitly loaded in a Perl script or
-module and install them if they are not already installed. Since this
-module relies on L<Perl::PrereqScanner|Perl::PrereqScanner> to
-statically identify dependencies, it has the same caveats regarding
-identifying loaded modules. Therefore, modules that are loaded
-dynamically (e.g., C<eval "require $class">) will not be identified
-as dependencies or installed.
+Extract the names of the modules explicitly loaded in Perl files,
+check which modules are not installed, and install the missing
+modules. Since this module relies on
+L<Perl::PrereqScanner|Perl::PrereqScanner> to statically identify
+dependencies, it has the same caveats regarding identifying loaded
+modules. Therefore, modules that are loaded dynamically (e.g.,
+C<eval "require $class">) will not be identified as dependencies or
+installed.
 
-Command-line usage is possible with C<cpanm-missing> and
-C<cpanm-missing-deep>, scripts that are installed along with this
-module.
+=head2 Command-line tool
 
-=cut
+Command-line usage is possible with C<install-perl-prereqs>
+(co-installed with this module).
+
+    install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
+        -h, --help
+        -d, --dry-run
+        -q, --quiet
+        -v, --version
+
+=head2 Methods for scanning files and installing modules
 
 =over 4
 
@@ -78,98 +90,176 @@ sub new {
         _newly_installed      => {},
         _failed_install       => {},
         _scan_errors          => [],
+        _scan_warnings        => {},
+        _banned => { # Some pragmas and/or modules misbehave or are irrelevant
+            'autodie'  => 1,
+            'base'     => 1,
+            'feature'  => 1,
+            'overload' => 1,
+            'perl'     => 1,
+            'strict'   => 1,
+            'vars'     => 1,
+            'warnings' => 1,
+        },
+        _quiet     => 0,
+        _filetypes => [ 'pl', 'pm', 'cgi', 'psgi', 't' ],
     };
     bless $self, $class;
 
     return $self;
 }
 
-=item check_modules( FILES )
+=item scan( FILES and/or DIRECTORIES )
 
-Analyzes FILES to generate a list of modules explicitly loaded in
-FILES and identifies which are not currently installed. Subsequent
-calls of this method will continue adding to the lists of modules
-that are not installed (or already installed).
+Analyzes all specified FILES (regardless of file type) and Perl files
+(.pl/.pm/.cgi/.psgi/.t) within specified DIRECTORIES to generate a
+list of modules explicitly loaded and identify which are not
+currently installed. Subsequent use of C<scan()> will update the
+lists of not yet installed and previously installed modules.
 
 =cut
 
-sub check_modules {
+sub scan {
+    my ( $self, @path_list ) = @_;
+
+    my $filetypes = join "|", @{ $self->{_filetypes} };
+    my $filetypes_regex = qr/^.+\.(?:$filetypes)$/i;
+
+    unless ( $self->quiet ) {
+        print "\n";
+        print "Files scanned:\n";
+    }
+
+    for my $path (@path_list) {
+        if ( -f $path ) {
+            $path = abs_path($path);
+            print "  $path\n" unless $self->quiet;
+
+            my $original_dir = getcwd;
+            my $file_dir     = ( fileparse($path) )[1];
+
+            chdir $file_dir; # Mimics the way File::Find traverses a directory
+            $self->_scan_file("$path");
+            chdir $original_dir;
+        }
+        elsif ( -d $path ) {
+            find(
+                sub {
+                    return unless /$filetypes_regex/;
+                    my $cwd  = getcwd;
+                    my $file_path = "$cwd/$_";
+                    print "  $file_path\n" unless $self->quiet;
+                    $self->_scan_file("$file_path");
+                },
+                $path
+            );
+        }
+        else {
+            print "Neither file nor directory: $path\n"
+                unless $self->quiet;
+        }
+    }
+    print "\n" unless $self->quiet;
+}
+
+sub _scan_file {
     my ( $self, @file_list ) = @_;
 
     my $scanner = Perl::PrereqScanner->new;
 
-    # Some pragmas and/or modules misbehave or are irrelevant
-    my %banned = (
-        'autodie'  => 1,
-        'base'     => 1,
-        'feature'  => 1,
-        'overload' => 1,
-        'perl'     => 1,
-        'strict'   => 1,
-        'vars'     => 1,
-        'warnings' => 1,
-    );
-
-    # Ignore things such as 'Prototype mismatch' and deprecation warnings
-    my $NOWARN = 0;
-    $SIG{'__WARN__'} = sub { warn $_[0] unless $NOWARN };
-
     for my $file (@file_list) {
         next unless -e $file;
-        next if -s $file >= 1048576;
+
+        if ( -s $file >= 1048576 ) {
+            $self->_scan_code($file);
+            next;
+        }
 
         my $prereqs;
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
         eval { $prereqs = $scanner->scan_file($file) };
+        $CATCH_WARNING = 0;
         if ($@) {
             push @{ $self->{_scan_errors} }, $file;
             next;
         }
+
         my @module_list = keys %{ $$prereqs{'requirements'} };
+        $self->_check_installed( $file, @module_list );
+    }
+}
 
-        for my $module (@module_list) {
-            next if exists $banned{$module};
+sub _scan_code {
 
-            $NOWARN = 1;
-            eval "require $module;";
-            $NOWARN = 0;
-            if ($@) {
-                $self->{_not_installed}{$module}++;
-            }
-            else {
-                $self->{_previously_installed}{$module}++;
-            }
+    # Scan code in chunks half the size of PPI:Tokenizer's limit
+    # This 1 MB limit should be removed in PPI's next update
+    # https://github.com/adamkennedy/PPI/pull/52
+    # https://github.com/adamkennedy/PPI/blob/master/Changes
+
+    my ( $self, $file ) = @_;
+
+    my $scanner = Perl::PrereqScanner->new;
+    my $prereqs;
+    my %modules;
+    my $string = '';
+    open my $perl_fh, "<", $file;
+    while ( my $line = <$perl_fh> ) {
+        $string .= $line;
+        my $byte_size;
+        {
+            use bytes;
+            $byte_size = length $string;
+        }
+        next unless $byte_size > 524_288 || eof($perl_fh);
+
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
+        eval { $prereqs = $scanner->scan_string($string) };
+        $CATCH_WARNING = 0;
+        if ($@) {
+            push @{ $self->{_scan_errors} }, $file;
+            next;
+        }
+        $modules{$_} = 1 for keys %{ $$prereqs{'requirements'} };
+        $string = '';
+    }
+    close $perl_fh;
+
+    my @module_list = keys %modules;
+    $self->_check_installed( $file, @module_list );
+}
+
+sub _check_installed {
+    my ( $self, $file, @module_list ) = @_;
+
+    for my $module (@module_list) {
+        next if exists $self->{_banned}{$module};
+
+        my $CATCH_WARNING = 1;
+        $SIG{'__WARN__'}
+            = sub { _catch_warning( $self, $file, $_[0], $CATCH_WARNING ) };
+        eval "require $module;";
+        $CATCH_WARNING = 0;
+        if ($@) {
+            $self->{_not_installed}{$module}++;
+        }
+        else {
+            $self->{_previously_installed}{$module}++;
         }
     }
 }
 
-=item check_modules_deep( DIRECTORY, PATTERN )
+sub _catch_warning {
+    my ( $self, $file, $warning, $CATCH_WARNING ) = @_;
 
-Traverses a DIRECTORY and runs C<check_modules()> on files that match
-PATTERN, a case-insensitive regular expression. If omitted, PATTERN
-defaults to C<^.+\.p[lm]$> and matches files ending in C<.pl> or
-C<.pm>. Subsequent calls of this method will continue adding to the
-lists of modules that are not installed (or already installed).
-
-=cut
-
-sub check_modules_deep {
-    my ( $self, $directory, $pattern ) = @_;
-
-    $pattern = defined $pattern ? qr/$pattern/i : qr/^.+\.p[lm]$/i;
-
-    print "\n";
-    print "Files found:\n";
-    find(
-        sub {
-            return unless /$pattern/;
-            my $cwd       = getcwd;
-            my $file_path = "$cwd/$_";
-            print "  $file_path\n";
-            $self->check_modules("$file_path");
-        },
-        $directory
-    );
-    print "\n";
+    if ($CATCH_WARNING) {
+        chomp $warning;
+        push @{ $self->{_scan_warnings}{$file} }, $warning;
+    }
+    else { warn $warning }
 }
 
 =item cpanm
@@ -183,7 +273,9 @@ sub cpanm {
 
     my @modules = sort keys %{ $self->{_not_installed} };
     for (@modules) {
-        my $exit_status = system("cpanm $_");
+        my $cpanm_cmd = "cpanm";
+        $cpanm_cmd .= " -q" if $self->quiet;
+        my $exit_status = system("$cpanm_cmd $_");
         if ($exit_status) {
             $self->{_failed_install}{$_}++;
         }
@@ -194,6 +286,31 @@ sub cpanm {
         }
     }
 }
+
+=item quiet( BOOLEAN )
+
+Set quiet mode to on/off (default: off). Quiet mode turns off most
+of the output. If BOOLEAN is not provided, this method returns quiet
+mode's current state.
+
+=cut
+
+sub quiet {
+    my ( $self, $boolean ) = @_;
+
+    if ( defined $boolean ) {
+        $self->{_quiet} = $boolean;
+    }
+    else {
+        return $self->{_quiet};
+    }
+}
+
+=back
+
+=head2 Methods for accessing and reporting scan/install status
+
+=over 4
 
 =item not_installed
 
@@ -258,18 +375,143 @@ sub scan_errors {
     return @{ $self->{_scan_errors} };
 }
 
+=item scan_warnings
+
+Returns a hash of arrays containing the names of files (the keys) that
+raised warnings (the array contents) during parsing. These warnings
+are likely indicative of issues with the code in the parsed files
+rather than actual parsing problems.
+
+=cut
+
+sub scan_warnings {
+    my $self = shift;
+    return %{ $self->{_scan_warnings} };
+}
+
+=item report
+
+Write (to STDOUT) a summary of scan/install results. By default, all
+status methods below (except C<scan_warnings>) are summarized. To
+customize the contents of C<report()>, pass it an anonymous hash:
+
+    $installer->report(
+        {   'not_installed'        => 0,
+            'previously_installed' => 0,
+            'newly_installed'      => 1,
+            'failed_install'       => 1,
+            'scan_errors'          => 0,
+            'scan_warnings'        => 0,
+        }
+    );
+
+=cut
+
+sub report {
+    my ( $self, $custom_contents ) = @_;
+
+    my %summary_contents = (
+        'not_installed'        => 1,
+        'previously_installed' => 1,
+        'newly_installed'      => 1,
+        'failed_install'       => 1,
+        'scan_errors'          => 1,
+        'scan_warnings'        => 0,
+    );
+
+    $summary_contents{$_} = $$custom_contents{$_} for keys %$custom_contents;
+
+    _summarize( 'File parsing errors', '', $self->scan_errors )
+        if $summary_contents{'scan_errors'} == 1 && !$self->quiet;
+
+    _summarize(
+        'Modules to install',
+        'No missing modules need to be installed!',
+        $self->not_installed
+    ) if $summary_contents{'not_installed'} == 1 && !$self->quiet;
+
+    _summarize( 'Successfully installed', '', $self->newly_installed )
+        if $summary_contents{'newly_installed'} == 1;
+
+    _summarize( 'Failed to install', '', $self->failed_install )
+        if $summary_contents{'failed_install'} == 1;
+
+    if ( $summary_contents{'scan_warnings'} == 1 && !$self->quiet ) {
+        my %scan_warnings = $self->scan_warnings;
+        my @warned_files  = sort keys %scan_warnings;
+        if ( scalar @warned_files > 0 ) {
+            print "Warnings during scan:\n";
+            for my $file (@warned_files) {
+                print "  $file\n";
+                $Text::Wrap::columns = 78;
+                $Text::Wrap::huge    = 'wrap';
+                print wrap( "  | - ", "  |   ", "$_\n" )
+                    for @{ $scan_warnings{$file} };
+            }
+            print "\n";
+        }
+    }
+}
+
+sub _summarize {
+    my ( $title, $alt_message, @items ) = @_;
+
+    if ( scalar @items > 0 ) {
+        print "$title:\n";
+        print "  $_\n" for @items;
+        print "\n";
+    }
+    elsif ($alt_message) {
+        print "$alt_message\n\n";
+    }
+}
+
 =back
 
 =head1 SEE ALSO
 
-L<lib::xi|lib::xi>
-L<Perl::PrereqScanner|Perl::PrereqScanner>
+L<Perl::PrereqScanner|Perl::PrereqScanner>,
+L<App::cpanoutdated|App::cpanoutdated>,
+L<lib::xi|lib::xi>,
 L<Module::Extract::Use|Module::Extract::Use>
+
+The command-line tool C<scan-perl-prereqs> gets installed together
+with L<Perl::PrereqScanner|Perl::PrereqScanner>. The basic
+functionality of C<install-perl-prereqs> can be recreated with
+C<scan-perl-prereqs | cpanm>; however, C<install-perl-prereqs> comes
+with a few bonuses, including:
+
+=over 4
+
+=item Better error handling
+
+In the event of parse errors, C<scan-perl-prereqs> dies even if there
+are files remaining to be scanned, whereas C<install-perl-prereqs>
+logs the error and scans the next file.
+
+=item Summary report
+
+C<install-perl-prereqs> provides a summary of scan and install
+results.
+
+=item No unexpected updates
+
+While C<scan-perl-prereqs | cpanm> attempts to update all
+previously-installed modules found in a scan, C<install-perl-prereqs>
+only attempts to install modules if they are not yet installed.
+
+Perhaps a better way to update installed CPAN modules is to use
+L<cpan-outdated|cpan-outdated> (from
+L<App::cpanoutdated|App::cpanoutdated>:
+
+    cpan-outdated -p | cpanm
+
+=back
 
 =head1 SOURCE AVAILABILITY
 
 The source code is on Github:
-L<https://github.com/mfcovington/module-extract-install>
+L<https://github.com/mfcovington/Perl-PrereqInstaller>
 
 =head1 AUTHOR
 
@@ -278,11 +520,15 @@ Michael F. Covington, <mfcovington@gmail.com>
 =head1 BUGS
 
 Please report any bugs or feature requests at
-L<https://github.com/mfcovington/module-extract-install/issues>.
+L<https://github.com/mfcovington/Perl-PrereqInstaller/issues>.
 
 =head1 INSTALLATION
 
-To install this module, run the following commands:
+To install this module from GitHub using cpanm:
+
+    cpanm git@github.com:mfcovington/Perl-PrereqInstaller.git
+
+Alternatively, download and run the following commands:
 
     perl Build.PL
     ./Build

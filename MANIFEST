@@ -1,10 +1,8 @@
 bin/install-perl-prereqs
-bin/install-perl-prereqs-deep
 Build.PL
 CHANGES
 MANIFEST
 README.md
-demo.pl
 lib/Perl/PrereqInstaller.pm
 META.yml
 META.json

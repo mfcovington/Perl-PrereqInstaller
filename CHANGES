@@ -1,5 +1,18 @@
 Revision history for Perl module Perl::PrereqInstaller
 
+0.6.0 2014-08-16
+
+  - Merge file scanning and directory scanning
+  - Add report() method to summarize scan/install results
+  - Turn off most of the output with quiet mode option
+  - Expand file types analyzed in directories to .pl/.pm/.cgi/.psgi/.t
+  - For files larger than PPI:Tokenizer's 1 MB limit, scan code in 0.5 MB chunks
+  - Catch and report scan warnings
+  - Add tests for summary reports
+  - Update and revise documentation
+  - And more little stuff
+  - Happy CPAN Day!
+
 0.5.0 2014-07-28
 
   - Switch from Module::Extract::Use to Perl::PrereqScanner
