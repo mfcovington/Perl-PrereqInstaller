@@ -15,11 +15,11 @@ loaded in Perl files
 
 =head1 VERSION
 
-Version 0.5.0
+Version 0.6.0
 
 =cut
 
-our $VERSION = '0.5.0';
+our $VERSION = '0.6.0';
 
 =head1 SYNOPSIS
 
