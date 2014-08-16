@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 use Capture::Tiny 'capture_stdout';
 use Cwd 'abs_path';
+use File::Basename;
 use Test::More tests => 11;
 
 BEGIN {
@@ -31,7 +32,7 @@ my @still_not_installed = $installer->not_installed;
 isa_ok( $installer, 'Perl::PrereqInstaller' );
 is_deeply(
     \@installed,
-    [ 'Capture::Tiny', 'Cwd', 'Test::More' ],
+    [ 'Capture::Tiny', 'Cwd', 'File::Basename', 'Test::More' ],
     'Find modules that are already installed'
 );
 is_deeply(
@@ -58,10 +59,11 @@ $installer->scan($bad_file);
 my @scan_errors = $installer->scan_errors;
 is_deeply( \@scan_errors, [$abs_path], 'Report files with scan errors' );
 
+my $test_path = ( fileparse( abs_path($0) ) )[1];
 my $report_got = capture_stdout { $installer->report; };
 my $report_expect = <<EOF;
 File parsing errors:
-  /Users/mfc/git.repos/module-extract-install/t/bad/scan-error.pl
+  ${test_path}bad/scan-error.pl
 
 Modules to install:
   A::Non::Existent::Perl::Module
@@ -99,13 +101,16 @@ my $deep_report_got = capture_stdout {
         }
     );
 };
-my $deep_report_expect = <<'EOF';
+my $deep_report_expect_pt1 = <<EOF;
 Warnings during scan:
-  /Users/mfc/git.repos/module-extract-install/t/deep/deep-script.pl
+  ${test_path}deep/deep-script.pl
+EOF
+my $deep_report_expect_pt2 = <<'EOF';
   | - "my" variable $x masks earlier declaration in same scope at
   |   CausesWarning.pm line 6.
 
 EOF
+my $deep_report_expect = $deep_report_expect_pt1 . $deep_report_expect_pt2;
 is( $deep_report_got, $deep_report_expect,
     'Summary report for scan warnings' );
 
