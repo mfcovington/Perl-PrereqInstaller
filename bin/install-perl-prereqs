@@ -5,6 +5,44 @@ use File::Basename;
 use Perl::PrereqInstaller;
 use Getopt::Long;
 
+=head1 NAME
+
+install-perl-prereqs - Install missing modules explicitly
+loaded in Perl files
+
+=head1 VERSION
+
+Version 0.5.0
+
+=head1 SYNOPSIS
+
+    install-perl-prereqs FILE_OR_DIR [FILE_OR_DIR ...]
+        -h, --help
+        -d, --dry-run
+        -q, --quiet
+        -v, --version
+
+=head1 AUTHOR
+
+Michael F. Covington, <mfcovington@gmail.com>
+
+=head1 BUGS
+
+Please report any bugs or feature requests at
+L<https://github.com/mfcovington/Perl-PrereqInstaller/issues>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 Michael F. Covington.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the the Artistic License (2.0). You may obtain a
+copy of the full license at:
+
+L<http://www.perlfoundation.org/artistic_license_2_0>
+
+=cut
+
 my ( $help, $dry_run, $quiet, $version );
 
 my $options = GetOptions(
