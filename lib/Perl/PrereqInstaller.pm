@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp;
 use Cwd qw(getcwd abs_path);
+use File::Basename;
 use File::Find;
 use Perl::PrereqScanner;
 use Text::Wrap;
@@ -133,7 +134,13 @@ sub scan {
         if ( -f $path ) {
             $path = abs_path($path);
             print "  $path\n" unless $self->quiet;
+
+            my $original_dir = getcwd;
+            my $file_dir     = ( fileparse($path) )[1];
+
+            chdir $file_dir; # Mimics the way File::Find traverses a directory
             $self->_scan_file("$path");
+            chdir $original_dir;
         }
         elsif ( -d $path ) {
             find(
