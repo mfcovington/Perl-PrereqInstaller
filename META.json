@@ -17,6 +17,7 @@
       "build" : {
          "requires" : {
             "Capture::Tiny" : "0",
+            "Getopt::Long" : "0",
             "Test::More" : "0"
          }
       },
@@ -45,7 +46,7 @@
    "provides" : {
       "Perl::PrereqInstaller" : {
          "file" : "lib/Perl/PrereqInstaller.pm",
-         "version" : "v0.6.0"
+         "version" : "v0.6.1"
       }
    },
    "release_status" : "stable",
@@ -54,5 +55,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.6.0"
+   "version" : "v0.6.1"
 }

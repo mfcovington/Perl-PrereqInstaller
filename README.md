@@ -7,7 +7,7 @@ loaded in Perl files
 
 # VERSION
 
-Version 0.6.0
+Version 0.6.1
 
 # SYNOPSIS
 
@@ -147,7 +147,7 @@ The command-line tool `scan-perl-prereqs` gets installed together
 with [Perl::PrereqScanner](https://metacpan.org/pod/Perl::PrereqScanner). The basic
 functionality of `install-perl-prereqs` can be recreated with
 `scan-perl-prereqs | cpanm`; however, `install-perl-prereqs` comes
-with a few bonuses, including:
+with a few bonuses. These include:
 
 - Better error handling
 
@@ -168,7 +168,7 @@ with a few bonuses, including:
 
     Perhaps a better way to update installed CPAN modules is to use
     [cpan-outdated](https://metacpan.org/pod/cpan-outdated) (from
-    [App::cpanoutdated](https://metacpan.org/pod/App::cpanoutdated):
+    [App::cpanoutdated](https://metacpan.org/pod/App::cpanoutdated)):
 
         cpan-outdated -p | cpanm
 

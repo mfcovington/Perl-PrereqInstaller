@@ -15,11 +15,11 @@ loaded in Perl files
 
 =head1 VERSION
 
-Version 0.6.0
+Version 0.6.1
 
 =cut
 
-our $VERSION = '0.6.0';
+our $VERSION = '0.6.1';
 
 =head1 SYNOPSIS
 
@@ -194,9 +194,13 @@ sub _scan_file {
 sub _scan_code {
 
     # Scan code in chunks half the size of PPI:Tokenizer's limit
-    # This 1 MB limit should be removed in PPI's next update
-    # https://github.com/adamkennedy/PPI/pull/52
-    # https://github.com/adamkennedy/PPI/blob/master/Changes
+    # This 1 MB limit should be removed in PPI 1.218
+    #
+    # I submitted a pull request to bump the required PPI version #
+    # for Perl::PrereqScanner. Will remove this workaround once the
+    # request is accepted and released.
+    # https://github.com/rjbs/Perl-PrereqScanner/pull/46
+
 
     my ( $self, $file ) = @_;
 
@@ -479,7 +483,7 @@ The command-line tool C<scan-perl-prereqs> gets installed together
 with L<Perl::PrereqScanner|Perl::PrereqScanner>. The basic
 functionality of C<install-perl-prereqs> can be recreated with
 C<scan-perl-prereqs | cpanm>; however, C<install-perl-prereqs> comes
-with a few bonuses, including:
+with a few bonuses. These include:
 
 =over 4
 
@@ -502,7 +506,7 @@ only attempts to install modules if they are not yet installed.
 
 Perhaps a better way to update installed CPAN modules is to use
 L<cpan-outdated|cpan-outdated> (from
-L<App::cpanoutdated|App::cpanoutdated>:
+L<App::cpanoutdated|App::cpanoutdated>):
 
     cpan-outdated -p | cpanm
 
