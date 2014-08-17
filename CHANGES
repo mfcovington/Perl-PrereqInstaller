@@ -1,5 +1,9 @@
 Revision history for Perl module Perl::PrereqInstaller
 
+0.6.2 2014-08-17
+
+  - Fix testing bug
+
 0.6.1 2014-08-16
 
   - Only create README.md if './Build.PL --readme'
