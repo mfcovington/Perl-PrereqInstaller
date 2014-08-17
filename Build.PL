@@ -1,9 +1,15 @@
 #!/usr/bin/env perl
 use strict;
 use warnings FATAL => 'all';
+use Getopt::Long;
 use Module::Build;
 
 # TODO: Add version specifications for requirements
+
+my $readme;
+my $options = GetOptions (
+    "readme" => \$readme,
+);
 
 my $module_file = "lib/Perl/PrereqInstaller.pm";
 my @scripts = grep { -f and !-d } glob 'bin/*';
@@ -12,7 +18,7 @@ eval "use Pod::Markdown";
 if ( ! $@ ) {
     require Pod::Markdown;
     my $readme_file = "README.md";
-    pod2markdown( $module_file, $readme_file );
+    pod2markdown( $module_file, $readme_file ) if $readme;
 }
 
 my $builder = Module::Build->new(
@@ -33,6 +39,7 @@ my $builder = Module::Build->new(
     },
     build_requires => {
         'Capture::Tiny' => 0,
+        'Getopt::Long'  => 0,
         'Test::More'    => 0,
     },
     configure_requires => {
