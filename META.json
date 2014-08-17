@@ -46,7 +46,7 @@
    "provides" : {
       "Perl::PrereqInstaller" : {
          "file" : "lib/Perl/PrereqInstaller.pm",
-         "version" : "v0.6.1"
+         "version" : "v0.6.2"
       }
    },
    "release_status" : "stable",
@@ -55,5 +55,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.6.1"
+   "version" : "v0.6.2"
 }
