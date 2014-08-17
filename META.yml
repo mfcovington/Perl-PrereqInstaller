@@ -4,6 +4,7 @@ author:
   - 'Michael F. Covington, <mfcovington@gmail.com>'
 build_requires:
   Capture::Tiny: '0'
+  Getopt::Long: '0'
   Test::More: '0'
 configure_requires:
   Module::Build: '0'
@@ -17,7 +18,7 @@ name: Perl-PrereqInstaller
 provides:
   Perl::PrereqInstaller:
     file: lib/Perl/PrereqInstaller.pm
-    version: v0.6.0
+    version: v0.6.1
 recommends:
   Pod::Markdown: '0'
 requires:
@@ -32,4 +33,4 @@ requires:
   perl: '5.006'
 resources:
   license: http://dev.perl.org/licenses/
-version: v0.6.0
+version: v0.6.1
