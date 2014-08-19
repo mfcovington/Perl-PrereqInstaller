@@ -21,6 +21,7 @@ Version 0.6.2
         -d, --dry-run
         -q, --quiet
         -v, --version
+        -w, --warnings
 
 =head1 AUTHOR
 
@@ -43,13 +44,14 @@ L<http://www.perlfoundation.org/artistic_license_2_0>
 
 =cut
 
-my ( $help, $dry_run, $quiet, $version );
+my ( $help, $dry_run, $quiet, $version, $warnings );
 
 my $options = GetOptions(
-    "help"    => \$help,
-    "dry-run" => \$dry_run,
-    "quiet"   => \$quiet,
-    "version" => \$version,
+    "help"     => \$help,
+    "dry-run"  => \$dry_run,
+    "quiet"    => \$quiet,
+    "version"  => \$version,
+    "warnings" => \$warnings,
 );
 
 my @paths = @ARGV;
@@ -68,6 +70,7 @@ Usage: $script_name FILE_OR_DIR [FILE_OR_DIR ...]
     -d, --dry-run
     -q, --quiet
     -v, --version
+    -w, --warnings
 
 Please report bugs or feature requests: https://github.com/mfcovington/Perl-PrereqInstaller/issues
 
@@ -86,7 +89,7 @@ $installer->report(
         'newly_installed'      => 0,
         'failed_install'       => 0,
         'scan_errors'          => 1,
-        'scan_warnings'        => 0,
+        'scan_warnings'        => $warnings || 0,
     }
 );
 

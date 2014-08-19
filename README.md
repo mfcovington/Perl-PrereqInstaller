@@ -58,6 +58,7 @@ Command-line usage is possible with `install-perl-prereqs`
         -d, --dry-run
         -q, --quiet
         -v, --version
+        -w, --warnings
 
 ## Methods for scanning files and installing modules
 

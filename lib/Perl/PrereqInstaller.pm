@@ -70,6 +70,7 @@ Command-line usage is possible with C<install-perl-prereqs>
         -d, --dry-run
         -q, --quiet
         -v, --version
+        -w, --warnings
 
 =head2 Methods for scanning files and installing modules
 
